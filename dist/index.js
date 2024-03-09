@@ -1,5 +1,4 @@
 "use strict";
-// src/index.ts
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -22,6 +21,9 @@ mongoose_1.default
     .catch((error) => {
     console.log('Unable to connect.');
     console.log(error);
+});
+app.get('/', (req, res) => {
+    res.send('Welcome to Stars center!');
 });
 // Middleware
 app.use(express_1.default.json());

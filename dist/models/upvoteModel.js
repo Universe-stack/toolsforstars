@@ -24,16 +24,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const toolSchema = new mongoose_1.Schema({
-    name: { type: String, required: true },
-    description: { type: String },
-    features: { type: [String] },
-    screenshots: { type: [String] },
-    pricing: { type: String },
-    categories: { type: [String] },
-    targetAudience: { type: [String] },
-    productLister: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true },
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now }
+const upvoteSchema = new mongoose_1.Schema({
+    toolId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Tool', required: true },
+    user: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true },
+    createdAt: { type: Date, default: Date.now }
 });
-exports.default = mongoose_1.default.model('Tool', toolSchema);
+exports.default = mongoose_1.default.model('Upvote', upvoteSchema);

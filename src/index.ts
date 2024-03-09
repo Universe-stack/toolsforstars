@@ -1,5 +1,3 @@
-// src/index.ts
-
 import express, {Express , Request, Response } from 'express';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
@@ -25,7 +23,11 @@ mongoose
     .catch((error) => {
       console.log('Unable to connect.');
       console.log(error);
-    });
+});
+
+app.get('/', (req,res)=>{
+  res.send('Welcome to Stars center!')
+})
 
 
 // Middleware
