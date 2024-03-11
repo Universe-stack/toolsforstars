@@ -7,6 +7,8 @@ const express_1 = __importDefault(require("express"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const config_1 = __importDefault(require("./utils/config"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const userRoute_1 = __importDefault(require("./routes/userRoute"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3000;
@@ -22,9 +24,14 @@ mongoose_1.default
     console.log('Unable to connect.');
     console.log(error);
 });
+//Middlewares
+app.use((0, cookie_parser_1.default)());
+app.use(express_1.default.json());
+//routes
 app.get('/', (req, res) => {
     res.send('Welcome to Stars center!');
 });
+app.use("/users", userRoute_1.default);
 // Middleware
 app.use(express_1.default.json());
 // Start server

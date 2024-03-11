@@ -13,7 +13,7 @@ const userSchema = new Schema({
     username: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    role: { type: String, enum: ['Super User', 'Product Lister', 'Visitor'], default: 'Visitor' },
+    role: { type: String, enum: ['super user', 'product lister', 'visitor'], default: 'Visitor' },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });

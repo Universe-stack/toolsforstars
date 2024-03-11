@@ -3,7 +3,10 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import config from './utils/config'
-import dotenv from 'dotenv'
+import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
+import userRouter from './routes/userRoute';
+
 
 
 dotenv.config()
@@ -25,9 +28,19 @@ mongoose
       console.log(error);
 });
 
+
+//Middlewares
+app.use(cookieParser());
+app.use(express.json());
+
+
+
+//routes
 app.get('/', (req,res)=>{
   res.send('Welcome to Stars center!')
 })
+
+app.use("/users", userRouter);
 
 
 // Middleware
