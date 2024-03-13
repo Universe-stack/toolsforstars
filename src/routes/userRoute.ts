@@ -1,5 +1,5 @@
 import express from 'express';
-import {registerUser, getUserProfile, getAllUsers, updateUserProfile,deleteUser,changeUserRole } from '../controllers/userController'
+import {registerUser, getUserProfile, getAllUsers, updateUserProfile,deleteUser,changeUserRole,createUserProfile } from '../controllers/userController'
 
 
 const userRouter = express.Router();
@@ -8,11 +8,14 @@ const userRouter = express.Router();
 //Register a user
 userRouter.post('/register', registerUser)
 
+//create user profile
+userRouter.post('/createprofile', createUserProfile)
+
 //Get user profile
-userRouter.get('/profile',getUserProfile)
+userRouter.get('/getprofile',getUserProfile)
 
 //update user profile
-userRouter.put('/updateprofile',updateUserProfile)
+userRouter.put('/updateprofile/:_id',updateUserProfile)
 
 //Get all Users
 userRouter.get('/all', getAllUsers)
@@ -21,7 +24,7 @@ userRouter.get('/all', getAllUsers)
 userRouter.delete('/deleteprofile/:_id', deleteUser)
 
 //update user role
-userRouter.put(':/_id/role',changeUserRole)
+userRouter.put('/:_id/role',changeUserRole)
 
 
 export default userRouter;

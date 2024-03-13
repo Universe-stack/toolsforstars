@@ -94,14 +94,14 @@ export const getUserProfile = async (req: Request, res: Response) => {
 export const updateUserProfile = async(req:Request, res:Response)=> {
     try{
        
-        const existingUser = await UserProfile.findById(req.user._id);
+        const existingUser = await UserProfile.findById(req.params._id);
 
         if(!existingUser) {
             return res.status(404).json({message: "user not found"})
         }
 
         const updatedUser = await UserProfile.findByIdAndUpdate(
-            req.user._id,
+            req.params._id,
             {...existingUser.toObject(), ...req.body},
             {new:true}
         )

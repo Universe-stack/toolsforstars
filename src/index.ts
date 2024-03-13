@@ -6,6 +6,7 @@ import config from './utils/config'
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import userRouter from './routes/userRoute';
+import toolRouter from './routes/toolRoute';
 
 
 
@@ -41,6 +42,7 @@ app.get('/', (req,res)=>{
 })
 
 app.use("/users", userRouter);
+app.use("/tools", toolRouter);
 
 
 // Middleware

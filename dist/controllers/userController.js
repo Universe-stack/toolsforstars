@@ -85,11 +85,11 @@ const getUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function*
 exports.getUserProfile = getUserProfile;
 const updateUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const existingUser = yield userProfileModel_1.default.findById(req.user._id);
+        const existingUser = yield userProfileModel_1.default.findById(req.params._id);
         if (!existingUser) {
             return res.status(404).json({ message: "user not found" });
         }
-        const updatedUser = yield userProfileModel_1.default.findByIdAndUpdate(req.user._id, Object.assign(Object.assign({}, existingUser.toObject()), req.body), { new: true });
+        const updatedUser = yield userProfileModel_1.default.findByIdAndUpdate(req.params._id, Object.assign(Object.assign({}, existingUser.toObject()), req.body), { new: true });
         res.status(200).json({ message: 'User profile updated successfully', user: updatedUser });
     }
     catch (error) {

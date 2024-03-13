@@ -8,14 +8,16 @@ const userController_1 = require("../controllers/userController");
 const userRouter = express_1.default.Router();
 //Register a user
 userRouter.post('/register', userController_1.registerUser);
+//create user profile
+userRouter.post('/createprofile', userController_1.createUserProfile);
 //Get user profile
-userRouter.get('/profile', userController_1.getUserProfile);
+userRouter.get('/getprofile', userController_1.getUserProfile);
 //update user profile
-userRouter.put('/updateprofile', userController_1.updateUserProfile);
+userRouter.put('/updateprofile/:_id', userController_1.updateUserProfile);
 //Get all Users
 userRouter.get('/all', userController_1.getAllUsers);
 //delete profile
 userRouter.delete('/deleteprofile/:_id', userController_1.deleteUser);
 //update user role
-userRouter.put(':/_id/role', userController_1.changeUserRole);
+userRouter.put('/:_id/role', userController_1.changeUserRole);
 exports.default = userRouter;
