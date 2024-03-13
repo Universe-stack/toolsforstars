@@ -1,5 +1,5 @@
 import express from 'express';
-import {registerUser, getUserProfile, getAllUsers, updateUserProfile,deleteUser } from '../controllers/userController'
+import {registerUser, getUserProfile, getAllUsers, updateUserProfile,deleteUser,changeUserRole } from '../controllers/userController'
 
 
 const userRouter = express.Router();
@@ -19,6 +19,9 @@ userRouter.get('/all', getAllUsers)
 
 //delete profile
 userRouter.delete('/deleteprofile/:_id', deleteUser)
+
+//update user role
+userRouter.put(':/_id/role',changeUserRole)
 
 
 export default userRouter;

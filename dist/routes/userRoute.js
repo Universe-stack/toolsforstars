@@ -16,4 +16,6 @@ userRouter.put('/updateprofile', userController_1.updateUserProfile);
 userRouter.get('/all', userController_1.getAllUsers);
 //delete profile
 userRouter.delete('/deleteprofile/:_id', userController_1.deleteUser);
+//update user role
+userRouter.put(':/_id/role', userController_1.changeUserRole);
 exports.default = userRouter;

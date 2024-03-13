@@ -1,5 +1,6 @@
 import express, {Request, Response} from 'express';
 import User, {IUser} from '../models/userModel';
+import  UserProfile, {IUserProfile} from '../models/userProfileModel';
 import bcrypt from 'bcryptjs';
 import { Jwt } from 'jsonwebtoken';
 import Tool, {ITool} from '../models/toolModel';
@@ -44,11 +45,41 @@ export const registerUser = async (req:Request,res:Response )=> {
 }
 
 
+//Create user profile
+export const createUserProfile = async (req: Request, res: Response) => {
+    try {
+        const { username, email, name, role, picture } = req.body;
+
+        // Check if the username and email are unique
+        const existingUser = await UserProfile.findOne({ $or: [{ username }, { email }] });
+        if (existingUser) {
+            return res.status(400).json({ message: 'Username or email already exists' });
+        }
+
+        const newUserProfile:IUserProfile = new UserProfile({
+            username,
+            email,
+            name,
+            role,
+            picture
+        });
+
+        const savedUserProfile = await newUserProfile.save();
+
+        res.status(201).json({ message: 'User profile created successfully', userProfile: savedUserProfile });
+    } catch (error) {
+        console.error('Error creating user profile:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
+
 //get user profile
 export const getUserProfile = async (req: Request, res: Response) => {
     try {
       //const user = await User.findById(req.user._id).select('-password');
-      const user = await User.findById((req.user as { _id: string })._id).select('-password');
+      const user = await UserProfile.findById((req.user as { _id: string })._id).select('-password');
   
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
@@ -63,14 +94,18 @@ export const getUserProfile = async (req: Request, res: Response) => {
 export const updateUserProfile = async(req:Request, res:Response)=> {
     try{
        
-       const {username, email, name} = req.body;
+        const existingUser = await UserProfile.findById(req.user._id);
 
-        const updatedUser = await User.findByIdAndUpdate(
+        if(!existingUser) {
+            return res.status(404).json({message: "user not found"})
+        }
+
+        const updatedUser = await UserProfile.findByIdAndUpdate(
             req.user._id,
-            {username, email, name},
-            {new: true}
+            {...existingUser.toObject(), ...req.body},
+            {new:true}
         )
-    
+
         res.status(200).json({message: 'User profile updated successfully', user: updatedUser})
 
     }catch(error:any){
@@ -107,6 +142,23 @@ export const deleteUser = async (req:Request, res:Response) => {
     } catch(error){
         res.status(500).json({ message: 'Server error' });
     }
+
 }
 
-//user 
+//user role management
+export const changeUserRole = async(req:Request,res:Response) => {
+ try{
+    const userId = req.params._id;
+    const newRole = req.body.role;
+
+    const updatedUser = await User.findByIdAndUpdate(userId, {role:newRole}, {new:true});
+    if (!updatedUser) {
+        return res.status(404).json({message:'User not found'})
+    }
+
+    res.status(200).json({message:"User role updated"})
+ }catch(error) {
+    console.error('Eror updating user role',error);
+    res.status(500).json({message: 'Server error'})
+ }
+}

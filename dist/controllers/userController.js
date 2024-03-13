@@ -12,8 +12,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteUser = exports.getAllUsers = exports.updateUserProfile = exports.getUserProfile = exports.registerUser = void 0;
+exports.changeUserRole = exports.deleteUser = exports.getAllUsers = exports.updateUserProfile = exports.getUserProfile = exports.createUserProfile = exports.registerUser = void 0;
 const userModel_1 = __importDefault(require("../models/userModel"));
+const userProfileModel_1 = __importDefault(require("../models/userProfileModel"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const toolModel_1 = __importDefault(require("../models/toolModel"));
 // Register User
@@ -42,11 +43,36 @@ const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.registerUser = registerUser;
+//Create user profile
+const createUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { username, email, name, role, picture } = req.body;
+        // Check if the username and email are unique
+        const existingUser = yield userProfileModel_1.default.findOne({ $or: [{ username }, { email }] });
+        if (existingUser) {
+            return res.status(400).json({ message: 'Username or email already exists' });
+        }
+        const newUserProfile = new userProfileModel_1.default({
+            username,
+            email,
+            name,
+            role,
+            picture
+        });
+        const savedUserProfile = yield newUserProfile.save();
+        res.status(201).json({ message: 'User profile created successfully', userProfile: savedUserProfile });
+    }
+    catch (error) {
+        console.error('Error creating user profile:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+exports.createUserProfile = createUserProfile;
 //get user profile
 const getUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         //const user = await User.findById(req.user._id).select('-password');
-        const user = yield userModel_1.default.findById(req.user._id).select('-password');
+        const user = yield userProfileModel_1.default.findById(req.user._id).select('-password');
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -59,8 +85,11 @@ const getUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function*
 exports.getUserProfile = getUserProfile;
 const updateUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { username, email, name } = req.body;
-        const updatedUser = yield userModel_1.default.findByIdAndUpdate(req.user._id, { username, email, name }, { new: true });
+        const existingUser = yield userProfileModel_1.default.findById(req.user._id);
+        if (!existingUser) {
+            return res.status(404).json({ message: "user not found" });
+        }
+        const updatedUser = yield userProfileModel_1.default.findByIdAndUpdate(req.user._id, Object.assign(Object.assign({}, existingUser.toObject()), req.body), { new: true });
         res.status(200).json({ message: 'User profile updated successfully', user: updatedUser });
     }
     catch (error) {
@@ -100,4 +129,20 @@ const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.deleteUser = deleteUser;
-//user 
+//user role management
+const changeUserRole = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const userId = req.params._id;
+        const newRole = req.body.role;
+        const updatedUser = yield userModel_1.default.findByIdAndUpdate(userId, { role: newRole }, { new: true });
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json({ message: "User role updated" });
+    }
+    catch (error) {
+        console.error('Eror updating user role', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+exports.changeUserRole = changeUserRole;
