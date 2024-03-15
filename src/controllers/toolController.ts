@@ -5,7 +5,7 @@ import Tool, {ITool} from '../models/toolModel';
 export const createNewTool = async (req: Request, res: Response) => {
     try {
         const { name, description, features, screenshots, pricing, categories, targetAudience } = req.body;
-        const productLister = req.params.userId;
+        const publisher = req.params.userId;
 
         const newTool = new Tool({
             name,
@@ -15,7 +15,7 @@ export const createNewTool = async (req: Request, res: Response) => {
             pricing,
             categories,
             targetAudience,
-            productLister:productLister
+            publisher:publisher
         });
 
         const savedTool = await newTool.save();
@@ -103,6 +103,8 @@ export const getToolDetails = async (req: Request, res: Response) => {
     }
 };
 
+
+//For this, you'd have to create a search index on the field you wish to search, to be done in mongo db atlas
 export const searchTools = async (req: Request, res: Response) => {
     try {
       // Build search query
@@ -151,3 +153,23 @@ export const searchTools = async (req: Request, res: Response) => {
       res.status(500).json({ message: 'Server error' });
     }
   };
+
+  //get Publisher Info
+  export const getpublisher = async (req: Request, res: Response) => {
+    try {
+        const toolId = req.params.toolId;
+        const tool = await Tool.findById(toolId);
+
+        if (!tool) {
+            return res.status(404).json({ message: 'Tool not found' });
+        }
+        const publisher = await User.findById(tool.publisher);
+        if (!publisher) {
+            return res.status(404).json({ message: 'Product lister not found' });
+        }
+        res.status(200).json({ publisher });
+    } catch (error) {
+        console.error('Error fetching product lister:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};

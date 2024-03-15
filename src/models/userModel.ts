@@ -15,7 +15,7 @@ const userSchema = new Schema({
     username: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    role: { type: String, enum: ['super user', 'product lister', 'visitor'], default: 'visitor' },
+    role: { type: String, enum: ['super user', 'publisher', 'visitor'], default: 'visitor' },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });

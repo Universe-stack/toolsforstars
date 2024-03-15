@@ -10,6 +10,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const userRoute_1 = __importDefault(require("./routes/userRoute"));
 const toolRoute_1 = __importDefault(require("./routes/toolRoute"));
+const upvoteRoute_1 = __importDefault(require("./routes/upvoteRoute"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3000;
@@ -34,6 +35,7 @@ app.get('/', (req, res) => {
 });
 app.use("/users", userRoute_1.default);
 app.use("/tools", toolRoute_1.default);
+app.use("upvotes", upvoteRoute_1.default);
 // Middleware
 app.use(express_1.default.json());
 // Start server

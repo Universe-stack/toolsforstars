@@ -31,8 +31,9 @@ const toolSchema = new mongoose_1.Schema({
     screenshots: { type: [String] },
     pricing: { type: String },
     categories: { type: [String] },
+    upvotes: { type: Number, default: 0 },
     targetAudience: { type: [String] },
-    productLister: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true },
+    publisher: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });

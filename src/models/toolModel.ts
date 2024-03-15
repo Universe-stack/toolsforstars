@@ -1,15 +1,17 @@
 import mongoose, {Schema,Document} from 'mongoose';
 
 export interface ITool extends Document{
-    name: String,
-    description: String,
-    features: String,
-    screenshots: String,
-    pricing: String,
-    categories: String,
-    targetAudience: String,
+    name: string,
+    description: string,
+    features: string,
+    screenshots: string,
+    pricing: string,
+    categories: string,
+    upvotes: number,
+    targetAudience: string,
     createdAt: Date,
-    updatedAt: Date
+    updatedAt: Date,
+    publisher: Schema.Types.ObjectId
 }
 
 const toolSchema = new Schema({
@@ -19,8 +21,9 @@ const toolSchema = new Schema({
     screenshots:{type: [String]},
     pricing: {type : String},
     categories: {type: [String]},
+    upvotes:{type: Number, default: 0},
     targetAudience: {type: [String]},
-    productLister: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    publisher: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     createdAt: {type:Date, default: Date.now},
     updatedAt: {type:Date, default: Date.now}
 })

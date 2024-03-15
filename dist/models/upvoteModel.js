@@ -26,7 +26,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const upvoteSchema = new mongoose_1.Schema({
     toolId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Tool', required: true },
-    user: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true },
+    publisher: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true },
     createdAt: { type: Date, default: Date.now }
 });
 exports.default = mongoose_1.default.model('Upvote', upvoteSchema);

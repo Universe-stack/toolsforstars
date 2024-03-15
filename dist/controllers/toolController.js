@@ -12,12 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.searchTools = exports.getToolDetails = exports.deleteTool = exports.getAllToolListings = exports.updateTool = exports.createNewTool = void 0;
+exports.getpublisher = exports.searchTools = exports.getToolDetails = exports.deleteTool = exports.getAllToolListings = exports.updateTool = exports.createNewTool = void 0;
+const userModel_1 = __importDefault(require("../models/userModel"));
 const toolModel_1 = __importDefault(require("../models/toolModel"));
 const createNewTool = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { name, description, features, screenshots, pricing, categories, targetAudience } = req.body;
-        const productLister = req.params.userId;
+        const publisher = req.params.userId;
         const newTool = new toolModel_1.default({
             name,
             description,
@@ -26,7 +27,7 @@ const createNewTool = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             pricing,
             categories,
             targetAudience,
-            productLister: productLister
+            publisher: publisher
         });
         const savedTool = yield newTool.save();
         res.status(201).json({ message: 'Tool listing created successfully', tool: savedTool });
@@ -107,6 +108,7 @@ const getToolDetails = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.getToolDetails = getToolDetails;
+//For this, you'd have to create a search index on the field you wish to search, to be done in mongo db atlas
 const searchTools = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Build search query
@@ -140,3 +142,23 @@ const searchTools = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.searchTools = searchTools;
+//get Publisher Info
+const getpublisher = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const toolId = req.params.toolId;
+        const tool = yield toolModel_1.default.findById(toolId);
+        if (!tool) {
+            return res.status(404).json({ message: 'Tool not found' });
+        }
+        const publisher = yield userModel_1.default.findById(tool.publisher);
+        if (!publisher) {
+            return res.status(404).json({ message: 'Product lister not found' });
+        }
+        res.status(200).json({ publisher });
+    }
+    catch (error) {
+        console.error('Error fetching product lister:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+exports.getpublisher = getpublisher;

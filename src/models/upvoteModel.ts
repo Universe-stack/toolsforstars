@@ -2,13 +2,13 @@ import mongoose, {Schema, Document} from 'mongoose';
 
 interface IUpvote extends Document {
     toolId: String,
-    userId: String,
+    publisherId: String,
     createdAt: Date
 }
 
 const upvoteSchema = new Schema({
     toolId: {type: Schema.Types.ObjectId, ref:'Tool', required: true},
-    user: { type: Schema.Types.ObjectId, ref: 'User', required:true},
+    publisher: { type: Schema.Types.ObjectId, ref: 'User', required:true},
     createdAt: {type:Date, default: Date.now }
 })
 

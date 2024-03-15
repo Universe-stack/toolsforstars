@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import userRouter from './routes/userRoute';
 import toolRouter from './routes/toolRoute';
+import upvoteRouter from './routes/upvoteRoute';
 
 
 
@@ -43,6 +44,7 @@ app.get('/', (req,res)=>{
 
 app.use("/users", userRouter);
 app.use("/tools", toolRouter);
+app.use("upvotes",upvoteRouter)
 
 
 // Middleware
