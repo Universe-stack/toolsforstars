@@ -108,43 +108,21 @@ export const getToolDetails = async (req: Request, res: Response) => {
 export const searchTools = async (req: Request, res: Response) => {
     try {
       // Build search query
-      const { query, filters } = req.query;
+      const { name, pricing} = req.query;
   
-      let searchQuery: {
-        $text?: { $search: string };
-        // Add other filter fields here based on your schema
-        name?: string; // Example filter field for name
-        price?: { $gte: number, $lte?: number }; // Example filter for price range
-      } = {};
+      let searchQuery:any = {};
   
-      if (query) {
-        searchQuery.$text = { $search: query.toString() };
+      if (name) {
+        searchQuery.name = name.toString();
       }
-  
-      // Apply filters if provided
-      if (filters) {
-        const parsedFilters = JSON.parse(filters as string);
-        const filteredSearchQuery : {
-            $text?: { $search: string };
-            name?: string;
-            price?: { $gte: number; $lte?: number };
-            [key: string]: any; // Index signature to allow arbitrary string keys
-          } = { ...searchQuery }; // Clone to avoid mutation
-  
-        // Loop through parsed filters and add them to searchQuery with proper operators
-        for (const [key, value] of Object.entries(parsedFilters)) {
-          if (key === '_id') {
-            // Handle _id separately (e.g., validation or error handling)
-            continue; // Skip _id for now
-          }
-          filteredSearchQuery[key] = value; // Add other filter fields directly
-        }
-  
-        searchQuery = filteredSearchQuery;
-      }
-  
-      // Search for tools based on search query and filters
+
+      if (pricing) {
+        searchQuery.pricing = parseInt(pricing.toString()); // Convert the 'pricing' parameter to a number and add it to the search query
+    }
+      
+    console.log(searchQuery,"Search query")
       const tools = await Tool.find(searchQuery);
+      console.log(tools)
   
       // Return the list of matching tools
       res.status(200).json({ tools });
@@ -173,3 +151,4 @@ export const searchTools = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+

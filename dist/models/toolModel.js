@@ -32,6 +32,7 @@ const toolSchema = new mongoose_1.Schema({
     pricing: { type: String },
     categories: { type: [String] },
     upvotes: { type: Number, default: 0 },
+    upvotedBy: { type: [String] },
     targetAudience: { type: [String] },
     publisher: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true },
     createdAt: { type: Date, default: Date.now },

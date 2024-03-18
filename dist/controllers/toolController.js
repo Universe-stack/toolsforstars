@@ -112,27 +112,17 @@ exports.getToolDetails = getToolDetails;
 const searchTools = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Build search query
-        const { query, filters } = req.query;
+        const { name, pricing } = req.query;
         let searchQuery = {};
-        if (query) {
-            searchQuery.$text = { $search: query.toString() };
+        if (name) {
+            searchQuery.name = name.toString();
         }
-        // Apply filters if provided
-        if (filters) {
-            const parsedFilters = JSON.parse(filters);
-            const filteredSearchQuery = Object.assign({}, searchQuery); // Clone to avoid mutation
-            // Loop through parsed filters and add them to searchQuery with proper operators
-            for (const [key, value] of Object.entries(parsedFilters)) {
-                if (key === '_id') {
-                    // Handle _id separately (e.g., validation or error handling)
-                    continue; // Skip _id for now
-                }
-                filteredSearchQuery[key] = value; // Add other filter fields directly
-            }
-            searchQuery = filteredSearchQuery;
+        if (pricing) {
+            searchQuery.pricing = parseInt(pricing.toString()); // Convert the 'pricing' parameter to a number and add it to the search query
         }
-        // Search for tools based on search query and filters
+        console.log(searchQuery, "Search query");
         const tools = yield toolModel_1.default.find(searchQuery);
+        console.log(tools);
         // Return the list of matching tools
         res.status(200).json({ tools });
     }
