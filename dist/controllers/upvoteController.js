@@ -17,7 +17,7 @@ const toolModel_1 = __importDefault(require("../models/toolModel"));
 const upvoteTool = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { toolId } = req.params;
-        const userId = req.params.id;
+        const { userId } = req.params;
         const tool = yield toolModel_1.default.findById(toolId);
         if (!tool) {
             return res.status(404).json({ message: 'Tool not found' });
@@ -33,7 +33,6 @@ const upvoteTool = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             tool.upvotes += 1;
             tool.upvotedBy.push(userId);
         }
-        // Save the updated tool
         yield tool.save();
         res.status(200).json({ message: 'Tool upvoted successfully', tool });
     }
@@ -47,7 +46,7 @@ exports.upvoteTool = upvoteTool;
 const removeUpvote = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { toolId } = req.params;
-        const userId = req.params.id; // Use user.id after implementing auth
+        const { userId } = req.params; // Use user.id after implementing auth
         const tool = yield toolModel_1.default.findById(toolId);
         if (!tool) {
             return res.status(404).json({ message: 'Tool not found' });
@@ -72,7 +71,8 @@ exports.removeUpvote = removeUpvote;
 const getTotalUpvotes = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { toolId } = req.params;
-        const tool = toolModel_1.default.findById(toolId);
+        const tool = yield toolModel_1.default.findById(toolId);
+        console.log(tool);
         if (!tool) {
             return res.status(404).json({ message: 'Tool not found' });
         }

@@ -9,7 +9,7 @@ import Tool, {ITool} from '../models/toolModel';
 export const upvoteTool = async (req: Request, res: Response) => {
     try {
         const { toolId } = req.params;
-        const userId = req.params.id;
+        const {userId} = req.params;
 
         const tool = await Tool.findById(toolId);
         if (!tool) {
@@ -26,7 +26,6 @@ export const upvoteTool = async (req: Request, res: Response) => {
             tool.upvotes += 1;
             tool.upvotedBy.push(userId);
         }
-        // Save the updated tool
         await tool.save();
 
         res.status(200).json({ message: 'Tool upvoted successfully', tool });
@@ -40,7 +39,7 @@ export const upvoteTool = async (req: Request, res: Response) => {
 export const removeUpvote = async (req: Request, res: Response) => {
     try {
         const { toolId } = req.params;
-        const userId = req.params.id; // Use user.id after implementing auth
+        const {userId} = req.params; // Use user.id after implementing auth
 
         const tool = await Tool.findById(toolId);
         if (!tool) {
@@ -70,7 +69,8 @@ export const getTotalUpvotes = async(req:Request, res:Response)=> {
     try{
         const {toolId} = req.params;
 
-        const tool = Tool.findById(toolId);
+        const tool = await Tool.findById(toolId);
+        console.log(tool)
         if (!tool) {
             return res.status(404).json({ message: 'Tool not found' });
         }

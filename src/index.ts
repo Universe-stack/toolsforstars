@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 import userRouter from './routes/userRoute';
 import toolRouter from './routes/toolRoute';
 import upvoteRouter from './routes/upvoteRoute';
+import reportRouter from './routes/reportRoute';
 
 
 
@@ -44,7 +45,8 @@ app.get('/', (req,res)=>{
 
 app.use("/users", userRouter);
 app.use("/tools", toolRouter);
-app.use("upvotes",upvoteRouter)
+app.use("/upvotes",upvoteRouter);
+app.use("/reports",reportRouter)
 
 
 // Middleware

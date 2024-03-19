@@ -1,6 +1,7 @@
 import express from 'express';
 import {createNewTool,updateTool,getAllToolListings, deleteTool, getToolDetails, searchTools, getpublisher} from '../controllers/toolController'
-import { upvoteTool,removeUpvote,getTotalUpvotes } from '../controllers/upvoteController';
+import { upvoteTool,removeUpvote,getTotalUpvotes} from '../controllers/upvoteController';
+import { reportTool } from '../controllers/reportController';
 
 const toolRouter = express.Router();
 
@@ -10,11 +11,13 @@ toolRouter.post('/createtool/:userId', createNewTool)
 toolRouter.put('/updatetool/:toolId', updateTool);
 toolRouter.get('/search', searchTools)
 toolRouter.get('/all', getAllToolListings)
-toolRouter.delete('/deletetool/:toolId', deleteTool)
 toolRouter.get('/:toolId',getToolDetails)
+toolRouter.get('/:toolId/getupvotes',getTotalUpvotes)
+toolRouter.delete('/deletetool/:toolId', deleteTool)
 toolRouter.get('/:toolId/publisher',getpublisher)
 toolRouter.post('/:toolId/:userId/upvote', upvoteTool)
 toolRouter.post('/:toolId/:userId/unvote',removeUpvote )
-toolRouter.post('/:toolId/getupvotes',getTotalUpvotes)
+toolRouter.post('/:toolId/:userId/report',reportTool)
+
 
 export default toolRouter;
