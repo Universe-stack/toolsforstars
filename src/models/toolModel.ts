@@ -10,9 +10,12 @@ export interface ITool extends Document{
     upvotes: number,
     upvotedBy:String[],
     targetAudience: string,
+    isActive:boolean,
     createdAt: Date,
     updatedAt: Date,
-    publisher: Schema.Types.ObjectId
+    publisher: Schema.Types.ObjectId,
+    publisherEmail: Schema.Types.ObjectId
+
 }
 
 const toolSchema = new Schema({
@@ -25,9 +28,11 @@ const toolSchema = new Schema({
     upvotes:{type: Number, default: 0},
     upvotedBy: {type: [String]},
     targetAudience: {type: [String]},
+    isActive: {type: Boolean, default: true},
     publisher: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    publisherEmail: {type:Schema.Types.ObjectId, ref: 'User'},
     createdAt: {type:Date, default: Date.now},
     updatedAt: {type:Date, default: Date.now}
-})
+})  
 
 export default mongoose.model<ITool>('Tool', toolSchema)

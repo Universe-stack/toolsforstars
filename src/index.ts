@@ -4,11 +4,13 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import config from './utils/config'
 import dotenv from 'dotenv';
+import nodemailer from 'nodemailer';
 import cookieParser from 'cookie-parser';
 import userRouter from './routes/userRoute';
 import toolRouter from './routes/toolRoute';
 import upvoteRouter from './routes/upvoteRoute';
 import reportRouter from './routes/reportRoute';
+
 
 
 
@@ -30,6 +32,8 @@ mongoose
       console.log('Unable to connect.');
       console.log(error);
 });
+
+
 
 
 //Middlewares

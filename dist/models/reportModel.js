@@ -28,6 +28,8 @@ const ReportedToolSchema = new mongoose_1.Schema({
     tool: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Tool', required: true },
     reportcase: { type: String, required: true },
     user: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', default: null },
+    actionTaken: { type: String, default: null },
+    resolved: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now }
 });
 exports.default = mongoose_1.default.model('ReportedTool', ReportedToolSchema);
