@@ -13,12 +13,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleReport = exports.viewReports = exports.reportTool = void 0;
+const nodemailer_1 = __importDefault(require("nodemailer"));
 const toolModel_1 = __importDefault(require("../models/toolModel"));
 const reportModel_1 = __importDefault(require("../models/reportModel"));
 const userModel_1 = __importDefault(require("../models/userModel"));
 const html = `
     <h1>Hello world</h1>
+    <p>This is fun </p>
 `;
+function main() {
+    return __awaiter(this, void 0, void 0, function* () {
+        nodemailer_1.default.createTransport({});
+    });
+}
 //https://www.youtube.com/watch?v=L46FwfVTRE0
 const reportTool = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -68,7 +75,9 @@ const handleReport = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         if (action === 'remove') {
             // Update the tool's status to inactive or deleted
             const toolId = report.tool; // Assuming the tool ID is stored in the report
+            console.log(toolId, 'reported tool');
             const tool = yield toolModel_1.default.findById(toolId);
+            console.log(tool, 'reported tool');
             if (tool) {
                 tool.isActive = false; // Set the tool's status to inactive
                 yield tool.save();

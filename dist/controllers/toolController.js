@@ -67,7 +67,7 @@ exports.updateTool = updateTool;
 //get all tools
 const getAllToolListings = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const tools = yield toolModel_1.default.find();
+        const tools = yield toolModel_1.default.find({ isActive: { $ne: false } });
         res.status(200).json({ tools });
     }
     catch (error) {
@@ -97,6 +97,9 @@ const getToolDetails = (req, res) => __awaiter(void 0, void 0, void 0, function*
     try {
         const toolId = req.params.toolId;
         const tool = yield toolModel_1.default.findById(toolId);
+        if (!(tool === null || tool === void 0 ? void 0 : tool.isActive)) {
+            res.status(500).json({ message: "This resource is currently under review" });
+        }
         if (!tool) {
             return res.status(404).json({ message: 'Tool not found' });
         }

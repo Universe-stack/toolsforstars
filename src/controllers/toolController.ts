@@ -61,8 +61,7 @@ export const updateTool = async (req: Request, res: Response) => {
 //get all tools
 export const getAllToolListings = async (req: Request, res: Response) => {
     try {
-        const tools = await Tool.find();
-
+        const tools = await Tool.find({isActive: { $ne: false }});
         res.status(200).json({ tools });
     } catch (error) {
         console.error('Error retrieving tool listings:', error);
@@ -92,6 +91,9 @@ export const getToolDetails = async (req: Request, res: Response) => {
         const toolId = req.params.toolId;
 
         const tool = await Tool.findById(toolId);
+        if (!tool?.isActive) {
+            res.status(500).json({ message: "This resource is currently under review" });
+        }        
 
         if (!tool) {
             return res.status(404).json({ message: 'Tool not found' });

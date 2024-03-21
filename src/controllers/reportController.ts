@@ -6,7 +6,16 @@ import User from '../models/userModel';
 
 const html = `
     <h1>Hello world</h1>
+    <p>This is fun </p>
 `
+
+
+async function main() {
+
+    nodeMailer.createTransport({
+
+    })
+}
 
 //https://www.youtube.com/watch?v=L46FwfVTRE0
 
@@ -66,11 +75,12 @@ export const handleReport = async (req:Request, res:Response) => {
         if (action === 'remove') {
             // Update the tool's status to inactive or deleted
             const toolId = report.tool; // Assuming the tool ID is stored in the report
+            console.log(toolId, 'reported tool')
             const tool = await Tool.findById(toolId);
+            console.log(tool, 'reported tool')
             if (tool) {
                 tool.isActive = false; // Set the tool's status to inactive
                 await tool.save();
-                
             }
         }
         else if (action === 'contact_owner') {

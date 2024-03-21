@@ -25,6 +25,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const reviewSchema = new mongoose_1.Schema({
-    toolId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Tool', required: 'true' }
+    toolId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Tool', required: 'true' },
+    userId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: 'true' },
+    content: { type: String },
+    reviewstars: { type: Number, default: 0 }
 });
 exports.default = mongoose_1.default.model('Review', reviewSchema);

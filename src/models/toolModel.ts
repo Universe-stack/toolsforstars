@@ -11,6 +11,7 @@ export interface ITool extends Document{
     upvotedBy:String[],
     targetAudience: string,
     isActive:boolean,
+    reviews:String[],
     createdAt: Date,
     updatedAt: Date,
     publisher: Schema.Types.ObjectId,
