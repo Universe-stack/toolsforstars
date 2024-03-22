@@ -67,7 +67,7 @@ exports.updateTool = updateTool;
 //get all tools
 const getAllToolListings = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const tools = yield toolModel_1.default.find({ isActive: { $ne: false } });
+        const tools = yield toolModel_1.default.find({ isActive: { $ne: false } }).populate('reviews');
         res.status(200).json({ tools });
     }
     catch (error) {

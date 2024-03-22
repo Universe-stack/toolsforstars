@@ -2,6 +2,7 @@ import express, {Request, Response} from 'express';
 import User, {IUser} from '../models/userModel';
 import Tool, {ITool} from '../models/toolModel';
 
+
 export const createNewTool = async (req: Request, res: Response) => {
     try {
         const { name, description, features, screenshots, pricing, categories, targetAudience } = req.body;
@@ -56,18 +57,19 @@ export const updateTool = async (req: Request, res: Response) => {
         console.error('Error updating tool:', error);
         res.status(500).json({ message: 'Server error' });
     }
-};
+}; 
 
 //get all tools
 export const getAllToolListings = async (req: Request, res: Response) => {
     try {
-        const tools = await Tool.find({isActive: { $ne: false }});
+        const tools = await Tool.find({ isActive: { $ne: false } }).populate('reviews');
         res.status(200).json({ tools });
     } catch (error) {
         console.error('Error retrieving tool listings:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
+
 
 //delete a tool
 export const deleteTool = async (req: Request, res: Response) => {
@@ -153,4 +155,3 @@ export const searchTools = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-

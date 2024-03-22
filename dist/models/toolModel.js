@@ -35,6 +35,8 @@ const toolSchema = new mongoose_1.Schema({
     upvotedBy: { type: [String] },
     targetAudience: { type: [String] },
     isActive: { type: Boolean, default: true },
+    reviews: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Review' },
+    averageReview: { type: Number, default: 0 },
     publisher: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true },
     publisherEmail: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User' },
     createdAt: { type: Date, default: Date.now },
