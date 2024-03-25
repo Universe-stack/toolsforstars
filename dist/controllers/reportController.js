@@ -17,13 +17,15 @@ const toolModel_1 = __importDefault(require("../models/toolModel"));
 const reportModel_1 = __importDefault(require("../models/reportModel"));
 const userModel_1 = __importDefault(require("../models/userModel"));
 const nodemailer_1 = require("nodemailer");
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 const sendMailToPublisher = (receiver, subject, text) => __awaiter(void 0, void 0, void 0, function* () {
     const transporter = (0, nodemailer_1.createTransport)({
         host: "smtp-relay.brevo.com",
         port: 587,
         auth: {
             user: "justicechinedu156@gmail.com",
-            pass: "xsmtpsib-e06bce2ef8cc238c7f9152c49f1c45f3f7e323a046087ab42eb7290294e2d5af-jJN65gE4qbp9mrUR"
+            pass: process.env.SMTP_KEY
         }
     });
     const mailOptions = {

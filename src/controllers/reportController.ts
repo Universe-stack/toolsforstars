@@ -4,7 +4,8 @@ import Tool from '../models/toolModel';
 import Report from '../models/reportModel';
 import User from '../models/userModel';
 import { createTransport } from 'nodemailer'
-
+import dotenv from "dotenv";
+dotenv.config()
 
 
 const sendMailToPublisher = async (receiver: any, subject: string, text: any) => {
@@ -13,7 +14,7 @@ const sendMailToPublisher = async (receiver: any, subject: string, text: any) =>
         port: 587,
         auth: {
             user: "justicechinedu156@gmail.com",
-            pass: "xsmtpsib-e06bce2ef8cc238c7f9152c49f1c45f3f7e323a046087ab42eb7290294e2d5af-jJN65gE4qbp9mrUR"
+            pass: process.env.SMTP_KEY
         }
     });
 
