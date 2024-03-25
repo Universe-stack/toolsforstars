@@ -17,7 +17,6 @@ export interface ITool extends Document{
     updatedAt: Date,
     publisher: Schema.Types.ObjectId,
     publisherEmail: Schema.Types.ObjectId
-
 }
 
 const toolSchema = new Schema({
@@ -34,7 +33,7 @@ const toolSchema = new Schema({
     reviews: {type:Schema.Types.ObjectId, ref:'Review'},
     averageReview: {type:Number, default: 0},
     publisher: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    publisherEmail: {type:Schema.Types.ObjectId, ref: 'User'},
+    publisherEmail: {type: Schema.Types.ObjectId, ref: 'User'},
     createdAt: {type:Date, default: Date.now},
     updatedAt: {type:Date, default: Date.now}
 })  

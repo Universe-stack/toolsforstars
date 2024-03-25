@@ -3,20 +3,35 @@ import nodeMailer from 'nodemailer'
 import Tool from '../models/toolModel';
 import Report from '../models/reportModel';
 import User from '../models/userModel';
-
-const html = `
-    <h1>Hello world</h1>
-    <p>This is fun </p>
-`
+import { createTransport } from 'nodemailer'
 
 
-async function main() {
 
-    nodeMailer.createTransport({
+const sendMailToPublisher = async (receiver: any, subject: string, text: any) => {
+    const transporter = createTransport({
+        host: "smtp-relay.brevo.com",
+        port: 587,
+        auth: {
+            user: "justicechinedu156@gmail.com",
+            pass: "xsmtpsib-e06bce2ef8cc238c7f9152c49f1c45f3f7e323a046087ab42eb7290294e2d5af-jJN65gE4qbp9mrUR"
+        }
+    });
 
-    })
-}
+    const mailOptions = {
+        from: 'justicechinedu156@gmail.com',
+        to: receiver,
+        subject: subject,
+        text: text
+    };
 
+    await transporter.sendMail(mailOptions, function(error, info){
+        if(error) {
+            console.log(error);
+        } else {
+            console.log('Email sent:' + info.response);
+        }        
+    });
+};
 //https://www.youtube.com/watch?v=L46FwfVTRE0
 
 export const reportTool = async (req: Request, res: Response) => {
@@ -86,10 +101,12 @@ export const handleReport = async (req:Request, res:Response) => {
         else if (action === 'contact_owner') {
             const toolId = report.tool; // Assuming the tool ID is stored in the report
             const tool = await Tool.findById(toolId);
+            await tool?.populate('publisherEmail');
+            console.log(tool, 'tool')
             if (tool) {
-                const ownerEmail = tool.publisherEmail; // Assuming you have the owner's email address
-                // Send an email or notification to the owner
-                // Example: sendEmail(ownerEmail, 'Tool Reported', 'Your tool has been reported. Please review.');
+                const ownerEmail = tool.publisherEmail.email;
+                const reportcase = report.reportcase;
+                sendMailToPublisher(ownerEmail, 'Your resource has been reported, please review!', reportcase);
             }
         }
         else if (action === 'dismiss') {

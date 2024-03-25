@@ -27,7 +27,8 @@ const createNewTool = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             pricing,
             categories,
             targetAudience,
-            publisher: publisher
+            publisher: publisher,
+            publisherEmail: publisher
         });
         const savedTool = yield newTool.save();
         res.status(201).json({ message: 'Tool listing created successfully', tool: savedTool });

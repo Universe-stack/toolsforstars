@@ -13,19 +13,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleReport = exports.viewReports = exports.reportTool = void 0;
-const nodemailer_1 = __importDefault(require("nodemailer"));
 const toolModel_1 = __importDefault(require("../models/toolModel"));
 const reportModel_1 = __importDefault(require("../models/reportModel"));
 const userModel_1 = __importDefault(require("../models/userModel"));
-const html = `
-    <h1>Hello world</h1>
-    <p>This is fun </p>
-`;
-function main() {
-    return __awaiter(this, void 0, void 0, function* () {
-        nodemailer_1.default.createTransport({});
+const nodemailer_1 = require("nodemailer");
+const sendMailToPublisher = (receiver, subject, text) => __awaiter(void 0, void 0, void 0, function* () {
+    const transporter = (0, nodemailer_1.createTransport)({
+        host: "smtp-relay.brevo.com",
+        port: 587,
+        auth: {
+            user: "justicechinedu156@gmail.com",
+            pass: "xsmtpsib-e06bce2ef8cc238c7f9152c49f1c45f3f7e323a046087ab42eb7290294e2d5af-jJN65gE4qbp9mrUR"
+        }
     });
-}
+    const mailOptions = {
+        from: 'justicechinedu156@gmail.com',
+        to: receiver,
+        subject: subject,
+        text: text
+    };
+    yield transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+            console.log(error);
+        }
+        else {
+            console.log('Email sent:' + info.response);
+        }
+    });
+});
 //https://www.youtube.com/watch?v=L46FwfVTRE0
 const reportTool = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -86,10 +101,12 @@ const handleReport = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         else if (action === 'contact_owner') {
             const toolId = report.tool; // Assuming the tool ID is stored in the report
             const tool = yield toolModel_1.default.findById(toolId);
+            yield (tool === null || tool === void 0 ? void 0 : tool.populate('publisherEmail'));
+            console.log(tool, 'tool');
             if (tool) {
-                const ownerEmail = tool.publisherEmail; // Assuming you have the owner's email address
-                // Send an email or notification to the owner
-                // Example: sendEmail(ownerEmail, 'Tool Reported', 'Your tool has been reported. Please review.');
+                const ownerEmail = tool.publisherEmail.email;
+                const reportcase = report.reportcase;
+                sendMailToPublisher(ownerEmail, 'Your resource has been reported, please review!', reportcase);
             }
         }
         else if (action === 'dismiss') {

@@ -16,7 +16,8 @@ export const createNewTool = async (req: Request, res: Response) => {
             pricing,
             categories,
             targetAudience,
-            publisher:publisher
+            publisher:publisher,
+            publisherEmail:publisher
         });
 
         const savedTool = await newTool.save();
@@ -48,6 +49,7 @@ export const updateTool = async (req: Request, res: Response) => {
         existingTool.categories = categories !== undefined ? categories : existingTool.categories;
         existingTool.targetAudience = targetAudience !== undefined ? targetAudience : existingTool.targetAudience;
         existingTool.updatedAt = new Date();
+      
 
     
         const updatedTool = await existingTool.save();
