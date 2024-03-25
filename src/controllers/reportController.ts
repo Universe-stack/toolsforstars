@@ -10,16 +10,16 @@ dotenv.config()
 
 const sendMailToPublisher = async (receiver: any, subject: string, text: any) => {
     const transporter = createTransport({
-        host: "smtp-relay.brevo.com",
-        port: 587,
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT,
         auth: {
-            user: "justicechinedu156@gmail.com",
+            user: process.env.SMTP_USER,
             pass: process.env.SMTP_KEY
         }
     });
 
     const mailOptions = {
-        from: 'justicechinedu156@gmail.com',
+        from: process.env.SMTP_USER,
         to: receiver,
         subject: subject,
         text: text

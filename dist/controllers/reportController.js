@@ -21,15 +21,15 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const sendMailToPublisher = (receiver, subject, text) => __awaiter(void 0, void 0, void 0, function* () {
     const transporter = (0, nodemailer_1.createTransport)({
-        host: "smtp-relay.brevo.com",
-        port: 587,
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT,
         auth: {
-            user: "justicechinedu156@gmail.com",
+            user: process.env.SMTP_USER,
             pass: process.env.SMTP_KEY
         }
     });
     const mailOptions = {
-        from: 'justicechinedu156@gmail.com',
+        from: process.env.SMTP_USER,
         to: receiver,
         subject: subject,
         text: text
