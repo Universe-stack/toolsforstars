@@ -1,5 +1,6 @@
+// @ts-nocheck
+
 import { Request, Response } from 'express';
-import nodeMailer from 'nodemailer'
 import Tool from '../models/toolModel';
 import Report from '../models/reportModel';
 import User from '../models/userModel';
@@ -8,16 +9,18 @@ import dotenv from "dotenv";
 dotenv.config()
 
 
+
 const sendMailToPublisher = async (receiver: any, subject: string, text: any) => {
+    
     const transporter = createTransport({
-        host: process.env.SMTP_HOST,
-        port: process.env.SMTP_PORT,
+        host: process.env.SMTP_HOST || "smtp-relay.brevo.com",
+        port: process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 587,
         auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_KEY
+            user: process.env.SMTP_USER || 'justicechinedu156@gmail.com',
+            pass: process.env.SMTP_KEY || "xsmtpsib-e06bce2ef8cc238c7f9152c49f1c45f3f7e323a046087ab42eb7290294e2d5af-jJN65gE4qbp9mrUR"
         }
     });
-
+    
     const mailOptions = {
         from: process.env.SMTP_USER,
         to: receiver,

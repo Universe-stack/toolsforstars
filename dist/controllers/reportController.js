@@ -1,4 +1,5 @@
 "use strict";
+// @ts-nocheck
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -21,11 +22,11 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const sendMailToPublisher = (receiver, subject, text) => __awaiter(void 0, void 0, void 0, function* () {
     const transporter = (0, nodemailer_1.createTransport)({
-        host: process.env.SMTP_HOST,
-        port: process.env.SMTP_PORT,
+        host: process.env.SMTP_HOST || "smtp-relay.brevo.com",
+        port: process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 587,
         auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_KEY
+            user: process.env.SMTP_USER || 'justicechinedu156@gmail.com',
+            pass: process.env.SMTP_KEY || "xsmtpsib-e06bce2ef8cc238c7f9152c49f1c45f3f7e323a046087ab42eb7290294e2d5af-jJN65gE4qbp9mrUR"
         }
     });
     const mailOptions = {
