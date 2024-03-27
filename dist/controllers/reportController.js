@@ -17,32 +17,31 @@ exports.handleReport = exports.viewReports = exports.reportTool = void 0;
 const toolModel_1 = __importDefault(require("../models/toolModel"));
 const reportModel_1 = __importDefault(require("../models/reportModel"));
 const userModel_1 = __importDefault(require("../models/userModel"));
-const nodemailer_1 = require("nodemailer");
 const dotenv_1 = __importDefault(require("dotenv"));
+const mail_1 = __importDefault(require("@sendgrid/mail"));
 dotenv_1.default.config();
+mail_1.default.setApiKey(process.env.SENDGRID_API_KEY);
 const sendMailToPublisher = (receiver, subject, text) => __awaiter(void 0, void 0, void 0, function* () {
-    const transporter = (0, nodemailer_1.createTransport)({
-        host: process.env.SMTP_HOST || "smtp-relay.brevo.com",
-        port: process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 587,
-        auth: {
-            user: process.env.SMTP_USER || 'justicechinedu156@gmail.com',
-            pass: process.env.SMTP_KEY || "xsmtpsib-e06bce2ef8cc238c7f9152c49f1c45f3f7e323a046087ab42eb7290294e2d5af-jJN65gE4qbp9mrUR"
-        }
-    });
-    const mailOptions = {
-        from: process.env.SMTP_USER,
+    const msg = {
         to: receiver,
-        subject: subject,
-        text: text
+        from: {
+            name: "Create Camp",
+            email: process.env.FROM_EMAIL
+        },
+        subject: 'Got a compaint on your tool',
+        text: 'Please check it out',
+        html: '<strong>Please check it out</strong>',
     };
-    yield transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-            console.log(error);
+    try {
+        yield mail_1.default.send(msg);
+        console.log("Email has been sent");
+    }
+    catch (error) {
+        console.error(error);
+        if (error.response) {
+            console.error(error.response.body);
         }
-        else {
-            console.log('Email sent:' + info.response);
-        }
-    });
+    }
 });
 //https://www.youtube.com/watch?v=L46FwfVTRE0
 const reportTool = (req, res) => __awaiter(void 0, void 0, void 0, function* () {

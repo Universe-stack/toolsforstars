@@ -6,35 +6,35 @@ import Report from '../models/reportModel';
 import User from '../models/userModel';
 import { createTransport } from 'nodemailer'
 import dotenv from "dotenv";
+import sgMail from "@sendgrid/mail";
 dotenv.config()
+
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 
 
 const sendMailToPublisher = async (receiver: any, subject: string, text: any) => {
-    
-    const transporter = createTransport({
-        host: process.env.SMTP_HOST || "smtp-relay.brevo.com",
-        port: process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 587,
-        auth: {
-            user: process.env.SMTP_USER || 'justicechinedu156@gmail.com',
-            pass: process.env.SMTP_KEY || "xsmtpsib-e06bce2ef8cc238c7f9152c49f1c45f3f7e323a046087ab42eb7290294e2d5af-jJN65gE4qbp9mrUR"
-        }
-    });
-    
-    const mailOptions = {
-        from: process.env.SMTP_USER,
+    const msg = {
         to: receiver,
-        subject: subject,
-        text: text
-    };
+        from: {
+            name: "Create Camp",
+            email:process.env.FROM_EMAIL
+        }, 
+        subject: 'Got a compaint on your tool',
+        text: 'Please check it out',
+        html: '<strong>Please check it out</strong>',
+        };
+    try {
+    await sgMail.send(msg);
+    console.log("Email has been sent")
+    } catch (error) {
+    console.error(error);
 
-    await transporter.sendMail(mailOptions, function(error, info){
-        if(error) {
-            console.log(error);
-        } else {
-            console.log('Email sent:' + info.response);
-        }        
-    });
+    if (error.response) {
+        console.error(error.response.body)
+    }
+    }
 };
 //https://www.youtube.com/watch?v=L46FwfVTRE0
 
