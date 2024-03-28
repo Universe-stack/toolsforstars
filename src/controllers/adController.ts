@@ -8,6 +8,12 @@ export const createAd = async (req: Request, res: Response) => {
     try {
         const { title, description, price, publisher, purchaseLink, adSpace } = req.body;
 
+        const totalAds = await Ad.countDocuments({ adSpace });
+        const maxAdsAllowed = 5;
+        if (totalAds >= maxAdsAllowed) {
+            return res.status(400).json({ message: `Ad space '${adSpace}' is full. Maximum ${maxAdsAllowed} ads allowed. Try again later` });
+        }
+
         const newAd: IAd = new Ad({
             title,
             description,
@@ -19,8 +25,8 @@ export const createAd = async (req: Request, res: Response) => {
 
         await newAd.save();
 
-        res.status(201).json({ message: 'Ad listing created successfully' });
-        console.log('Add created successfully', newAd)
+        res.status(201).json({ message: 'Ad listing created successfully', ad: newAd });
+        console.log('Ad created successfully', newAd);
     } catch (error) {
         // Handle errors
         console.error('Error creating ad listing:', error);

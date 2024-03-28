@@ -36,11 +36,9 @@ mongoose
 
 
 
-
 //Middlewares
 app.use(cookieParser());
 app.use(express.json());
-
 
 
 //routes

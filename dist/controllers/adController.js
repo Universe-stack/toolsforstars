@@ -17,6 +17,11 @@ const adModel_1 = __importDefault(require("../models/adModel"));
 const createAd = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { title, description, price, publisher, purchaseLink, adSpace } = req.body;
+        const totalAds = yield adModel_1.default.countDocuments({ adSpace });
+        const maxAdsAllowed = 5;
+        if (totalAds >= maxAdsAllowed) {
+            return res.status(400).json({ message: `Ad space '${adSpace}' is full. Maximum ${maxAdsAllowed} ads allowed. Try again later` });
+        }
         const newAd = new adModel_1.default({
             title,
             description,
@@ -26,8 +31,8 @@ const createAd = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             adSpace
         });
         yield newAd.save();
-        res.status(201).json({ message: 'Ad listing created successfully' });
-        console.log('Add created successfully', newAd);
+        res.status(201).json({ message: 'Ad listing created successfully', ad: newAd });
+        console.log('Ad created successfully', newAd);
     }
     catch (error) {
         // Handle errors
