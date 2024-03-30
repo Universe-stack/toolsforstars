@@ -8,6 +8,8 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const config_1 = __importDefault(require("./utils/config"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const passport_1 = __importDefault(require("passport"));
+require("./auth/passportConfig");
 const userRoute_1 = __importDefault(require("./routes/userRoute"));
 const toolRoute_1 = __importDefault(require("./routes/toolRoute"));
 const upvoteRoute_1 = __importDefault(require("./routes/upvoteRoute"));
@@ -31,6 +33,9 @@ mongoose_1.default
 //Middlewares
 app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.json());
+//passport
+app.use(express_1.default.json());
+app.use(passport_1.default.initialize());
 //routes
 app.get('/', (req, res) => {
     res.send('Welcome to Stars center!');

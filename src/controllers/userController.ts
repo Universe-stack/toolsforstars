@@ -1,15 +1,16 @@
-import express, {Request, Response} from 'express';
+import express, {Request, Response, NextFunction} from 'express';
 import User, {IUser} from '../models/userModel';
 import  UserProfile, {IUserProfile} from '../models/userProfileModel';
 import bcrypt from 'bcryptjs';
-import { Jwt } from 'jsonwebtoken';
 import Tool, {ITool} from '../models/toolModel';
+import passport from 'passport';
+
 
 
 declare global {
   namespace Express {
     interface Request {
-      user?: any,
+      user?: User | undefined,
     }
   }
 }
@@ -20,6 +21,17 @@ export const registerUser = async (req:Request,res:Response )=> {
     try{
         const {username, password, name, role, email} = req.body;
         
+        if (!username || !email || !password) {
+            return res.status(400).json({ message: 'Username, email, and password are required' });
+        }
+      
+          
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: 'Invalid email format' });
+        }
+
+
         const isUserExisting = await User.findOne({username});
         if(isUserExisting){
             return res.status(404).json({message: "Username is already taken"})
@@ -37,6 +49,7 @@ export const registerUser = async (req:Request,res:Response )=> {
         })
 
         const savedUser = await newUser.save()
+        res.redirect('/users/login')
         res.status(201).json(savedUser)
     } catch(error){
         res.status(500).json({message: 'Server error'})
@@ -44,6 +57,32 @@ export const registerUser = async (req:Request,res:Response )=> {
     }
 }
 
+
+export const loginUser = (req: Request, res: Response, next: NextFunction) => {
+    passport.authenticate('local', (err: Error | null, user: any, info: any) => {
+      if (err) { return next(err); }
+      if (!user) { return res.status(401).json({ message: 'Invalid email or password' }); }
+  
+      // Based on the user's role, redirect to the appropriate dashboard
+      if (user.role === 'publisher') {
+        req.logIn(user, (err) => {
+          if (err) { return next(err); }
+          return res.redirect('/');
+        });
+      } else if (user.role === 'superuser') {
+        req.logIn(user, (err) => {
+          if (err) { return next(err); }
+          return res.redirect('/');
+        });
+      } else {
+        // Handle other roles or default redirect
+        req.logIn(user, (err) => {
+          if (err) { return next(err); }
+          return res.redirect('/');
+        });
+      }
+    })(req, res, next);
+  };
 
 //Create user profile
 export const createUserProfile = async (req: Request, res: Response) => {
@@ -131,7 +170,9 @@ export const getAllUsers = async (req:Request, res:Response)=> {
 export const deleteUser = async (req:Request, res:Response) => {
     try{
         console.log("deleting")
-        const userId = req.user._id;
+
+        const user = req.user as IUser;
+        const userId = user?._id;
         const deletedUser = await User.findByIdAndDelete(userId);
         await Tool.deleteMany({userId})
 

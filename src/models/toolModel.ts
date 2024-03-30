@@ -1,11 +1,14 @@
 import mongoose, {Schema,Document} from 'mongoose';
 
+//Next, Finish implement productType for page routing feature
+
 export interface ITool extends Document{
     name: string,
     description: string,
     features: string,
     screenshots: string,
     pricing: string,
+    productType:'app' | 'SAAS'| 'Course' ,
     categories: string,
     upvotes: number,
     upvotedBy:String[],
@@ -25,7 +28,8 @@ const toolSchema = new Schema({
     features: {type: [String]},
     screenshots:{type: [String]},
     pricing: {type : String},
-    categories: {type: [String]},
+    productType: { type: String, enum: ['app', 'SAAS', 'Course'], default: 'app', required:true },
+    categories: {type: String || [String]},
     upvotes:{type: Number, default: 0},
     upvotedBy: {type: [String]},
     targetAudience: {type: [String]},

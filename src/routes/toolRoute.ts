@@ -1,8 +1,8 @@
 import express from 'express';
-import {createNewTool,updateTool,getAllToolListings, deleteTool, getToolDetails, searchTools, getpublisher} from '../controllers/toolController'
+import {createNewTool,updateTool,getAllToolListings, deleteTool, getToolDetails, searchTools, getpublisher ,getSaasTools, getapps, getCourses} from '../controllers/toolController'
 import { upvoteTool,removeUpvote,getTotalUpvotes} from '../controllers/upvoteController';
 import { reportTool} from '../controllers/reportController';
-import { addReview, getReviews, updateReview, deleteReview } from '../controllers/reviewController';
+import { addReview, getReviews, updateReview, deleteReview} from '../controllers/reviewController';
 
 const toolRouter = express.Router();
 
@@ -13,6 +13,9 @@ const toolRouter = express.Router();
 toolRouter.post('/createtool/:userId', createNewTool)
 toolRouter.put('/updatetool/:toolId', updateTool);
 toolRouter.get('/search', searchTools)
+toolRouter.get('/saas', getSaasTools)
+toolRouter.get('/courses', getCourses)
+toolRouter.get('/apps', getapps)
 toolRouter.get('/all', getAllToolListings)
 toolRouter.get('/:toolId',getToolDetails)
 toolRouter.get('/:toolId/getupvotes',getTotalUpvotes)

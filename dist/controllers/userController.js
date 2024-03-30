@@ -12,15 +12,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.changeUserRole = exports.deleteUser = exports.getAllUsers = exports.updateUserProfile = exports.getUserProfile = exports.createUserProfile = exports.registerUser = void 0;
+exports.changeUserRole = exports.deleteUser = exports.getAllUsers = exports.updateUserProfile = exports.getUserProfile = exports.createUserProfile = exports.loginUser = exports.registerUser = void 0;
 const userModel_1 = __importDefault(require("../models/userModel"));
 const userProfileModel_1 = __importDefault(require("../models/userProfileModel"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const toolModel_1 = __importDefault(require("../models/toolModel"));
+const passport_1 = __importDefault(require("passport"));
 // Register User
 const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { username, password, name, role, email } = req.body;
+        if (!username || !email || !password) {
+            return res.status(400).json({ message: 'Username, email, and password are required' });
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: 'Invalid email format' });
+        }
         const isUserExisting = yield userModel_1.default.findOne({ username });
         if (isUserExisting) {
             return res.status(404).json({ message: "Username is already taken" });
@@ -35,6 +43,7 @@ const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             email
         });
         const savedUser = yield newUser.save();
+        res.redirect('/users/login');
         res.status(201).json(savedUser);
     }
     catch (error) {
@@ -43,6 +52,43 @@ const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.registerUser = registerUser;
+const loginUser = (req, res, next) => {
+    passport_1.default.authenticate('local', (err, user, info) => {
+        if (err) {
+            return next(err);
+        }
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid email or password' });
+        }
+        // Based on the user's role, redirect to the appropriate dashboard
+        if (user.role === 'publisher') {
+            req.logIn(user, (err) => {
+                if (err) {
+                    return next(err);
+                }
+                return res.redirect('/');
+            });
+        }
+        else if (user.role === 'superuser') {
+            req.logIn(user, (err) => {
+                if (err) {
+                    return next(err);
+                }
+                return res.redirect('/');
+            });
+        }
+        else {
+            // Handle other roles or default redirect
+            req.logIn(user, (err) => {
+                if (err) {
+                    return next(err);
+                }
+                return res.redirect('/');
+            });
+        }
+    })(req, res, next);
+};
+exports.loginUser = loginUser;
 //Create user profile
 const createUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -116,7 +162,8 @@ exports.getAllUsers = getAllUsers;
 const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         console.log("deleting");
-        const userId = req.user._id;
+        const user = req.user;
+        const userId = user === null || user === void 0 ? void 0 : user._id;
         const deletedUser = yield userModel_1.default.findByIdAndDelete(userId);
         yield toolModel_1.default.deleteMany({ userId });
         if (!deletedUser) {

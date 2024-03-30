@@ -6,6 +6,8 @@ import config from './utils/config'
 import dotenv from 'dotenv';
 import nodemailer from 'nodemailer';
 import cookieParser from 'cookie-parser';
+import passport from 'passport';
+import './auth/passportConfig'
 import userRouter from './routes/userRoute';
 import toolRouter from './routes/toolRoute';
 import upvoteRouter from './routes/upvoteRoute';
@@ -34,17 +36,20 @@ mongoose
       console.log(error);
 });
 
-
-
 //Middlewares
 app.use(cookieParser());
 app.use(express.json());
 
 
+//passport
+app.use(express.json());
+app.use(passport.initialize());
+
 //routes
 app.get('/', (req,res)=>{
   res.send('Welcome to Stars center!')
 })
+
 
 app.use("/users", userRouter);
 app.use("/tools", toolRouter);

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getpublisher = exports.searchTools = exports.getToolDetails = exports.deleteTool = exports.getAllToolListings = exports.updateTool = exports.createNewTool = void 0;
+exports.getpublisher = exports.searchTools = exports.getToolDetails = exports.deleteTool = exports.getCourses = exports.getapps = exports.getSaasTools = exports.getAllToolListings = exports.updateTool = exports.createNewTool = void 0;
 const userModel_1 = __importDefault(require("../models/userModel"));
 const toolModel_1 = __importDefault(require("../models/toolModel"));
 const createNewTool = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -77,6 +77,39 @@ const getAllToolListings = (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 exports.getAllToolListings = getAllToolListings;
+const getSaasTools = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const saasTools = yield toolModel_1.default.find({ productType: { $in: ['saas', 'Saas'] } });
+        res.status(200).json(saasTools);
+    }
+    catch (error) {
+        console.error('Error retrieving Saas tools:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+exports.getSaasTools = getSaasTools;
+const getapps = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const appTools = yield toolModel_1.default.find({ productType: { $in: ['apps', 'Apps'] } });
+        res.status(200).json(appTools);
+    }
+    catch (error) {
+        console.error('Error retrieving app tools:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+exports.getapps = getapps;
+const getCourses = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const courses = yield toolModel_1.default.find({ productType: { $in: ['courses', 'Courses'] } });
+        res.status(200).json(courses);
+    }
+    catch (error) {
+        console.error('Error retrieving Courses:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+exports.getCourses = getCourses;
 //delete a tool
 const deleteTool = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {

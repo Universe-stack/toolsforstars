@@ -72,6 +72,35 @@ export const getAllToolListings = async (req: Request, res: Response) => {
     }
 };
 
+export const getSaasTools = async (req: Request, res: Response) => {
+    try {
+        const saasTools = await Tool.find({ productType: { $in: ['saas', 'Saas'] } });
+        res.status(200).json(saasTools);
+    } catch (error) {
+        console.error('Error retrieving Saas tools:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+export const getapps = async (req: Request, res: Response) => {
+    try {
+        const appTools = await Tool.find({ productType: { $in: ['apps', 'Apps'] } });
+        res.status(200).json(appTools);
+    } catch (error) {
+        console.error('Error retrieving app tools:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+export const getCourses = async (req: Request, res: Response) => {
+    try {
+        const courses = await Tool.find({ productType: { $in: ['courses', 'Courses'] } });
+        res.status(200).json(courses);
+    } catch (error) {
+        console.error('Error retrieving Courses:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
 
 //delete a tool
 export const deleteTool = async (req: Request, res: Response) => {
