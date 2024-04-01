@@ -43,7 +43,6 @@ const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             email
         });
         const savedUser = yield newUser.save();
-        res.redirect('/users/login');
         res.status(201).json(savedUser);
     }
     catch (error) {

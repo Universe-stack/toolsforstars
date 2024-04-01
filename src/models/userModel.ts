@@ -2,11 +2,11 @@ import mongoose, {Schema, Document} from "mongoose";
 import bcrypt from 'bcrypt';
 
 export interface IUser extends Document {
-    _id:String;
-    name: String;
-    username: String;
-    email: String;
-    password:String;
+    _id: string;
+    name: string;
+    username: string;
+    email: string;
+    password:string;
     role: 'superuser' | 'publisher' | 'visitor';
     ads:number;
     tools:number;

@@ -12,11 +12,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteAd = exports.updateAd = exports.getAd = exports.getAllAds = exports.createAd = void 0;
+exports.deleteAd = exports.updateAd = exports.getAd = exports.getPublisherAds = exports.getAllAds = exports.createAd = void 0;
+const userModel_1 = __importDefault(require("../models/userModel"));
 const adModel_1 = __importDefault(require("../models/adModel"));
 const createAd = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
-        const { title, description, price, publisher, purchaseLink, adSpace } = req.body;
+        const { title, description, price, purchaseLink, adSpace, image } = req.body;
+        const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
+        const findPublisher = yield userModel_1.default.findById(userId);
+        if (!findPublisher) {
+            res.status(404).json({ message: "No publisher found" });
+        }
         const totalAds = yield adModel_1.default.countDocuments({ adSpace });
         const maxAdsAllowed = 5;
         if (totalAds >= maxAdsAllowed) {
@@ -26,9 +33,10 @@ const createAd = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             title,
             description,
             price,
-            publisher,
+            publisher: findPublisher === null || findPublisher === void 0 ? void 0 : findPublisher._id,
             purchaseLink,
-            adSpace
+            adSpace,
+            image
         });
         yield newAd.save();
         res.status(201).json({ message: 'Ad listing created successfully', ad: newAd });
@@ -52,6 +60,25 @@ const getAllAds = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getAllAds = getAllAds;
+const getPublisherAds = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _b;
+    try {
+        const publisher = (_b = req.user) === null || _b === void 0 ? void 0 : _b._id;
+        if (!publisher) {
+            res.status(404).json({ message: "You're not logged in" });
+        }
+        const ads = yield adModel_1.default.find({ publisher: publisher });
+        if (!ads || ads.length === 0) {
+            res.status(404).json({ message: "You don't have any active ads" });
+        }
+        res.status(200).json({ message: "Ads successfully retrieved", ads });
+    }
+    catch (error) {
+        console.error('Error retrieving ads:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+exports.getPublisherAds = getPublisherAds;
 const getAd = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { adId } = req.params;
@@ -70,7 +97,7 @@ exports.getAd = getAd;
 const updateAd = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const adId = req.params.adId;
-        const { title, description, price, purchaseLink, adSpace } = req.body;
+        const { title, description, price, purchaseLink, adSpace, image } = req.body;
         const ad = yield adModel_1.default.findById(adId);
         if (!ad) {
             return res.status(404).json({ message: 'Ad not found' });
@@ -83,6 +110,8 @@ const updateAd = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             ad.price = price;
         if (purchaseLink)
             ad.purchaseLink = purchaseLink;
+        if (image)
+            ad.image = image;
         if (adSpace)
             ad.adSpace = adSpace;
         yield ad.save();
@@ -95,11 +124,16 @@ const updateAd = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.updateAd = updateAd;
 const deleteAd = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _c;
     try {
+        const userId = (_c = req.user) === null || _c === void 0 ? void 0 : _c._id;
         const { adId } = req.params;
         const deletedAd = yield adModel_1.default.findByIdAndDelete(adId);
         if (!deletedAd) {
             return res.status(404).json({ message: 'Ad not found' });
+        }
+        if (deletedAd.publisher.toString() !== (userId === null || userId === void 0 ? void 0 : userId.toString())) {
+            return res.status(403).json({ message: 'You are not authorized to delete this ad' });
         }
         res.status(200).json({ message: 'Ad listing deleted successfully' });
     }

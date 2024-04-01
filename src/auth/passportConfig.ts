@@ -23,4 +23,14 @@ passport.use(new LocalStrategy(
   }
 ));
 
+passport.serializeUser((user, done) => {
+  done(null, user._id);
+});
+
+passport.deserializeUser((_id, done) => {
+  User.findById(_id, (err:Error, user:any) => {
+      done(err, user);
+  });
+});
+
 export default passport;

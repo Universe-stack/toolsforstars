@@ -28,6 +28,7 @@ const adSchema = new mongoose_1.Schema({
     title: { type: String, required: true },
     description: { type: String, required: true },
     price: { type: Number, required: true },
+    image: { type: String, required: true },
     publisher: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: false },
     purchaseLink: { type: String, required: true },
     paymentStatus: { type: String, enum: ['pending', 'paid', 'rejected'], default: 'pending' },

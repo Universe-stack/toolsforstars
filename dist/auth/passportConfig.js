@@ -30,4 +30,12 @@ passport_1.default.use(new passport_local_1.Strategy({
         return done(error);
     }
 })));
+passport_1.default.serializeUser((user, done) => {
+    done(null, user._id);
+});
+passport_1.default.deserializeUser((_id, done) => {
+    userModel_1.default.findById(_id, (err, user) => {
+        done(err, user);
+    });
+});
 exports.default = passport_1.default;

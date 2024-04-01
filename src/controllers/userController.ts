@@ -49,7 +49,6 @@ export const registerUser = async (req:Request,res:Response )=> {
         })
 
         const savedUser = await newUser.save()
-        res.redirect('/users/login')
         res.status(201).json(savedUser)
     } catch(error){
         res.status(500).json({message: 'Server error'})

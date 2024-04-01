@@ -4,6 +4,7 @@ export interface IAd extends Document {
     title: string;
     description: string;
     price: number;
+    image: string;
     publisher: Schema.Types.ObjectId;
     purchaseLink:String;
     paymentStatus: 'pending' | 'paid' | 'rejected';
@@ -16,6 +17,7 @@ const adSchema = new Schema<IAd>({
     title: { type: String, required: true },
     description: { type: String, required: true },
     price: { type: Number, required: true },
+    image: {type: String, required: true},
     publisher: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     purchaseLink:{ type: String, required: true },
     paymentStatus: { type: String, enum: ['pending', 'paid', 'rejected'], default: 'pending' },
