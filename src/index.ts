@@ -7,13 +7,15 @@ import dotenv from 'dotenv';
 import nodemailer from 'nodemailer';
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
-import './auth/passportConfig'
+import './auth/passportJwtConfig'
 import userRouter from './routes/userRoute';
 import toolRouter from './routes/toolRoute';
 import upvoteRouter from './routes/upvoteRoute';
 import reportRouter from './routes/reportRoute';
 import adRouter from './routes/adRoute';
-const session = require('express-session');
+import session from 'express-session';
+import "./auth/passportJwtConfig"
+
 
 
 
@@ -42,18 +44,6 @@ app.use(cookieParser());
 app.use(express.json());
 
 
-//comment this out for next request. work on logout next
-
-// app.use(session({
-//   secret: 'JusticeChinedu111',
-//   resave: false,
-//   saveUninitialized: false
-// }));
-
-
-//passport
-app.use(express.json());
-app.use(passport.initialize());
 
 //routes
 app.get('/', (req,res)=>{
@@ -70,9 +60,6 @@ app.use("/ads",adRouter);
 
 // Middleware
 app.use(express.json());
-
-app.use(passport.initialize());
-app.use(passport.session());
 
 
 // Start server

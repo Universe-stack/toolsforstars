@@ -1,5 +1,6 @@
 import mongoose, {Schema, Document} from "mongoose";
 import bcrypt from 'bcrypt';
+import passportLocalMongoose from 'passport-local-mongoose';
 
 export interface IUser extends Document {
     _id: string;
@@ -27,8 +28,6 @@ const userSchema = new Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
-userSchema.methods.isValidPassword = async function (password: string): Promise<boolean> {
-    return bcrypt.compare(password, this.password);
-};
+userSchema.plugin(passportLocalMongoose)
   
 export default mongoose.model<IUser>('User', userSchema);

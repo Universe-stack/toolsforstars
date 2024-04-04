@@ -1,9 +1,10 @@
-import express, {Request, Response, NextFunction} from 'express';
+import express, {Request, Response, NextFunction, response} from 'express';
 import User, {IUser} from '../models/userModel';
 import  UserProfile, {IUserProfile} from '../models/userProfileModel';
 import bcrypt from 'bcryptjs';
 import Tool, {ITool} from '../models/toolModel';
 import passport from 'passport';
+import { generateAuthToken } from '../middlewares/authMiddleware';
 
 
 
@@ -14,6 +15,7 @@ declare global {
     }
   }
 }
+
 
 
 // Register User
@@ -57,31 +59,44 @@ export const registerUser = async (req:Request,res:Response )=> {
 }
 
 
-export const loginUser = (req: Request, res: Response, next: NextFunction) => {
-    passport.authenticate('local', (err: Error | null, user: any, info: any) => {
-      if (err) { return next(err); }
-      if (!user) { return res.status(401).json({ message: 'Invalid email or password' }); }
+export const loginUser = async (req: Request, res: Response,next:NextFunction) => {
+    try {
+      const { username, password } = req.body;
   
-      // Based on the user's role, redirect to the appropriate dashboard
-      if (user.role === 'publisher') {
-        req.logIn(user, (err) => {
-          if (err) { return next(err); }
-          return res.redirect('/');
-        });
-      } else if (user.role === 'superuser') {
-        req.logIn(user, (err) => {
-          if (err) { return next(err); }
-          return res.redirect('/');
-        });
-      } else {
-        // Handle other roles or default redirect
-        req.logIn(user, (err) => {
-          if (err) { return next(err); }
-          return res.redirect('/');
-        });
+      // Check if the user exists
+      const user = await User.findOne({ username });
+  
+      if (!user) {
+        return res.status(401).json({ message: 'Invalid credentials' });
       }
-    })(req, res, next);
+  
+      // Check if the password is correct
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+  
+      if (!isPasswordValid) {
+        return res.status(401).json({ message: 'Invalid credentials' });
+      }
+      
+      req.user = user;
+      // Generate a token and send it in the response
+      const token = generateAuthToken(user);
+      res.status(200).json({ token, user });
+    } catch (error) {
+      res.status(500).json({ message: 'Server error' });
+      console.log(error)
+    }
   };
+
+
+//logout user
+export const logout = function(req:Request, res:Response, next:NextFunction){
+ if (!req.user) return res.sendStatus(401);
+
+ req.logOut((err) => {
+  if (err) return response.sendStatus(401);
+  res.status(200).json({message: "logged Out"})
+ })
+}
 
 //Create user profile
 export const createUserProfile = async (req: Request, res: Response) => {
@@ -117,13 +132,15 @@ export const createUserProfile = async (req: Request, res: Response) => {
 export const getUserProfile = async (req: Request, res: Response) => {
     try {
       //const user = await User.findById(req.user._id).select('-password');
-      const user = await UserProfile.findById((req.user as { _id: string })._id).select('-password');
+      const user = req.user;
+      console.log(user,"user")
+      const findUser = await UserProfile.findById((req.user as { _id: string })._id).select('-password');
   
-      if (!user) {
+      if (!findUser) {
         return res.status(404).json({ message: 'User not found' });
       }
   
-      res.status(200).json(user);
+      res.status(200).json(findUser);
     } catch (error) {
       res.status(500).json({ message: 'Server error' });
     }

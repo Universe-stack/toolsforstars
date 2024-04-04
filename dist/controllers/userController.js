@@ -12,12 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.changeUserRole = exports.deleteUser = exports.getAllUsers = exports.updateUserProfile = exports.getUserProfile = exports.createUserProfile = exports.loginUser = exports.registerUser = void 0;
+exports.changeUserRole = exports.deleteUser = exports.getAllUsers = exports.updateUserProfile = exports.getUserProfile = exports.createUserProfile = exports.logout = exports.loginUser = exports.registerUser = void 0;
+const express_1 = require("express");
 const userModel_1 = __importDefault(require("../models/userModel"));
 const userProfileModel_1 = __importDefault(require("../models/userProfileModel"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const toolModel_1 = __importDefault(require("../models/toolModel"));
-const passport_1 = __importDefault(require("passport"));
+const authMiddleware_1 = require("../middlewares/authMiddleware");
 // Register User
 const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -51,43 +52,41 @@ const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.registerUser = registerUser;
-const loginUser = (req, res, next) => {
-    passport_1.default.authenticate('local', (err, user, info) => {
-        if (err) {
-            return next(err);
-        }
+const loginUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { username, password } = req.body;
+        // Check if the user exists
+        const user = yield userModel_1.default.findOne({ username });
         if (!user) {
-            return res.status(401).json({ message: 'Invalid email or password' });
+            return res.status(401).json({ message: 'Invalid credentials' });
         }
-        // Based on the user's role, redirect to the appropriate dashboard
-        if (user.role === 'publisher') {
-            req.logIn(user, (err) => {
-                if (err) {
-                    return next(err);
-                }
-                return res.redirect('/');
-            });
+        // Check if the password is correct
+        const isPasswordValid = yield bcryptjs_1.default.compare(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: 'Invalid credentials' });
         }
-        else if (user.role === 'superuser') {
-            req.logIn(user, (err) => {
-                if (err) {
-                    return next(err);
-                }
-                return res.redirect('/');
-            });
-        }
-        else {
-            // Handle other roles or default redirect
-            req.logIn(user, (err) => {
-                if (err) {
-                    return next(err);
-                }
-                return res.redirect('/');
-            });
-        }
-    })(req, res, next);
-};
+        req.user = user;
+        // Generate a token and send it in the response
+        const token = (0, authMiddleware_1.generateAuthToken)(user);
+        res.status(200).json({ token, user });
+    }
+    catch (error) {
+        res.status(500).json({ message: 'Server error' });
+        console.log(error);
+    }
+});
 exports.loginUser = loginUser;
+//logout user
+const logout = function (req, res, next) {
+    if (!req.user)
+        return res.sendStatus(401);
+    req.logOut((err) => {
+        if (err)
+            return express_1.response.sendStatus(401);
+        res.status(200).json({ message: "logged Out" });
+    });
+};
+exports.logout = logout;
 //Create user profile
 const createUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -117,11 +116,13 @@ exports.createUserProfile = createUserProfile;
 const getUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         //const user = await User.findById(req.user._id).select('-password');
-        const user = yield userProfileModel_1.default.findById(req.user._id).select('-password');
-        if (!user) {
+        const user = req.user;
+        console.log(user, "user");
+        const findUser = yield userProfileModel_1.default.findById(req.user._id).select('-password');
+        if (!findUser) {
             return res.status(404).json({ message: 'User not found' });
         }
-        res.status(200).json(user);
+        res.status(200).json(findUser);
     }
     catch (error) {
         res.status(500).json({ message: 'Server error' });
