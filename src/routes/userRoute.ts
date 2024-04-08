@@ -29,7 +29,7 @@ userRouter.put('/updateprofile/:_id',verifyUser,verifyAdmin,updateUserProfile)
 userRouter.get('/all',verifyUser,verifySuperAdmin, getAllUsers)
 
 //delete profile
-userRouter.delete('/deleteprofile/:_id',verifyUser, verifyAdmin, deleteUser)
+userRouter.delete('/deleteprofile',verifyUser, verifyAdmin, deleteUser)
 
 //update user role
 userRouter.put('/:_id/role',verifyUser,verifySuperAdmin,changeUserRole)

@@ -11,7 +11,7 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 require("./auth/passportJwtConfig");
 const userRoute_1 = __importDefault(require("./routes/userRoute"));
 const toolRoute_1 = __importDefault(require("./routes/toolRoute"));
-const upvoteRoute_1 = __importDefault(require("./routes/upvoteRoute"));
+//import upvoteRouter from './routes/upvoteRoute';
 const reportRoute_1 = __importDefault(require("./routes/reportRoute"));
 const adRoute_1 = __importDefault(require("./routes/adRoute"));
 require("./auth/passportJwtConfig");
@@ -39,7 +39,7 @@ app.get('/', (req, res) => {
 });
 app.use("/users", userRoute_1.default);
 app.use("/tools", toolRoute_1.default);
-app.use("/upvotes", upvoteRoute_1.default);
+//app.use("/upvotes",upvoteRouter);
 app.use("/reports", reportRoute_1.default);
 app.use("/ads", adRoute_1.default);
 // Middleware

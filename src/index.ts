@@ -10,7 +10,7 @@ import passport from 'passport';
 import './auth/passportJwtConfig'
 import userRouter from './routes/userRoute';
 import toolRouter from './routes/toolRoute';
-import upvoteRouter from './routes/upvoteRoute';
+//import upvoteRouter from './routes/upvoteRoute';
 import reportRouter from './routes/reportRoute';
 import adRouter from './routes/adRoute';
 import session from 'express-session';
@@ -53,7 +53,7 @@ app.get('/', (req,res)=>{
 
 app.use("/users", userRouter);
 app.use("/tools", toolRouter);
-app.use("/upvotes",upvoteRouter);
+//app.use("/upvotes",upvoteRouter);
 app.use("/reports",reportRouter)
 app.use("/ads",adRouter);
 

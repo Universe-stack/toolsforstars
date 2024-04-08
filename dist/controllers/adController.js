@@ -43,7 +43,6 @@ const createAd = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         console.log('Ad created successfully', newAd);
     }
     catch (error) {
-        // Handle errors
         console.error('Error creating ad listing:', error);
         res.status(500).json({ message: 'Server error' });
     }
@@ -80,11 +79,16 @@ const getPublisherAds = (req, res) => __awaiter(void 0, void 0, void 0, function
 });
 exports.getPublisherAds = getPublisherAds;
 const getAd = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _c;
+    const { adId } = req.params;
+    const userId = (_c = req.user) === null || _c === void 0 ? void 0 : _c._id;
     try {
-        const { adId } = req.params;
         const ad = yield adModel_1.default.findById(adId);
         if (!ad) {
             return res.status(404).json({ message: 'Ad not found' });
+        }
+        if (!ad.publisher.equals(userId)) {
+            return res.status(403).json({ message: 'You do not have permission to update this tool' });
         }
         res.status(200).json(ad);
     }
@@ -95,12 +99,17 @@ const getAd = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.getAd = getAd;
 const updateAd = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _d;
+    const userId = (_d = req.user) === null || _d === void 0 ? void 0 : _d._id;
+    const { adId } = req.params;
     try {
-        const adId = req.params.adId;
         const { title, description, price, purchaseLink, adSpace, image } = req.body;
         const ad = yield adModel_1.default.findById(adId);
         if (!ad) {
             return res.status(404).json({ message: 'Ad not found' });
+        }
+        if (ad.userId !== userId) {
+            return res.status(403).json({ message: 'You are not authorized to update this ad' });
         }
         if (title)
             ad.title = title;
@@ -124,10 +133,10 @@ const updateAd = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.updateAd = updateAd;
 const deleteAd = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _c;
+    var _e;
+    const userId = (_e = req.user) === null || _e === void 0 ? void 0 : _e._id;
+    const { adId } = req.params;
     try {
-        const userId = (_c = req.user) === null || _c === void 0 ? void 0 : _c._id;
-        const { adId } = req.params;
         const deletedAd = yield adModel_1.default.findByIdAndDelete(adId);
         if (!deletedAd) {
             return res.status(404).json({ message: 'Ad not found' });

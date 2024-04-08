@@ -15,9 +15,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getTotalUpvotes = exports.removeUpvote = exports.upvoteTool = void 0;
 const toolModel_1 = __importDefault(require("../models/toolModel"));
 const upvoteTool = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const { toolId } = req.params;
-        const { userId } = req.params;
+        const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
         const tool = yield toolModel_1.default.findById(toolId);
         if (!tool) {
             return res.status(404).json({ message: 'Tool not found' });
@@ -44,9 +45,10 @@ const upvoteTool = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 exports.upvoteTool = upvoteTool;
 // Route handler for removing an upvote from a tool
 const removeUpvote = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _b;
     try {
         const { toolId } = req.params;
-        const { userId } = req.params; // Use user.id after implementing auth
+        const userId = (_b = req.user) === null || _b === void 0 ? void 0 : _b._id; // Use user.id after implementing auth
         const tool = yield toolModel_1.default.findById(toolId);
         if (!tool) {
             return res.status(404).json({ message: 'Tool not found' });
@@ -57,7 +59,7 @@ const removeUpvote = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         if (tool.upvotes > 0) {
             tool.upvotes -= 1;
         }
-        tool.upvotedBy = tool.upvotedBy.filter((id) => id !== userId);
+        tool.upvotedBy = tool.upvotedBy.filter((_id) => _id !== userId);
         yield tool.save();
         res.status(200).json({ message: 'Upvote removed successfully', tool });
     }

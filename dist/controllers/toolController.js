@@ -16,9 +16,11 @@ exports.getpublisher = exports.searchTools = exports.getToolDetails = exports.de
 const userModel_1 = __importDefault(require("../models/userModel"));
 const toolModel_1 = __importDefault(require("../models/toolModel"));
 const createNewTool = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
-        const { name, description, features, screenshots, pricing, categories, targetAudience } = req.body;
-        const publisher = req.params.userId;
+        const { name, description, features, screenshots, pricing, categories, targetAudience, productType, aiEnabled } = req.body;
+        const publisher = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
+        console.log(publisher, 'publisher');
         const newTool = new toolModel_1.default({
             name,
             description,
@@ -26,6 +28,8 @@ const createNewTool = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             screenshots,
             pricing,
             categories,
+            aiEnabled,
+            productType,
             targetAudience,
             publisher: publisher,
             publisherEmail: publisher
@@ -41,11 +45,17 @@ const createNewTool = (req, res) => __awaiter(void 0, void 0, void 0, function* 
 exports.createNewTool = createNewTool;
 //update tool
 const updateTool = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _b;
+    const toolId = req.params.toolId;
+    const userId = (_b = req.user) === null || _b === void 0 ? void 0 : _b._id;
     try {
-        const toolId = req.params.toolId;
         const existingTool = yield toolModel_1.default.findById(toolId);
+        console.log(existingTool, 'existing Tool');
         if (!existingTool) {
             return res.status(404).json({ message: 'Tool not found' });
+        }
+        if (!existingTool.publisher.equals(userId)) {
+            return res.status(403).json({ message: 'You do not have permission to update this tool' });
         }
         const { name, description, features, screenshots, pricing, categories, targetAudience } = req.body;
         existingTool.name = name !== undefined ? name : existingTool.name;
@@ -77,13 +87,70 @@ const getAllToolListings = (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 exports.getAllToolListings = getAllToolListings;
+// export const getSaasTools = async (req: Request, res: Response) => {
+//     try {
+//         const saasTools = await Tool.find({ productType: { $in: ['saas', 'Saas'] } });
+//         res.status(200).json(saasTools);
+//     } catch (error) {
+//         console.error('Error retrieving Saas tools:', error);
+//         res.status(500).json({ message: 'Server error' });
+//     }
+// };
 const getSaasTools = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const saasTools = yield toolModel_1.default.find({ productType: { $in: ['saas', 'Saas'] } });
-        res.status(200).json(saasTools);
+        const { page = req.query.page ? parseInt(req.query.page, 20) : 1, limit = 10, sortBy, sortOrder, category } = req.query;
+        let query = yield toolModel_1.default.find({ productType: { $in: ['saas', 'Saas'] } });
+        // Apply filtering
+        if (category) {
+            query = query.where('category').equals(category);
+        }
+        // Apply sorting
+        // let sortCriteria;
+        // if (sortBy) {
+        //     sortCriteria[sortBy] = sortOrder === 'desc' ? -1 : 1;
+        //     query = query.sort(sortCriteria);
+        // }
+        // switch (sortBy) {
+        //     case 'AI':
+        //         sortCriteria = { aiEnabled: sortOrder === 'desc' ? -1 : 1 };
+        //         break;
+        //     case 'pricesHigh':
+        //         sortCriteria = { price: -1 }; 
+        //         break;
+        //     case 'pricesLow':
+        //         sortCriteria = { price: 1 }; 
+        //         break;
+        //     case 'recentlyAdded':
+        //         sortCriteria = { createdAt: -1 };
+        //         break;
+        //     case 'bestReviews':
+        //         sortCriteria = { averageReviewScore: -1 }; 
+        //         break;
+        //     case 'bestUpvotes':
+        //         sortCriteria = { totalUpvotes: -1 };
+        //         break;
+        //     default:
+        //         sortCriteria = { _id: 1 }
+        // }
+        // if (Object.keys(sortCriteria) {
+        //     query = query.sort(sortCriteria);
+        // }
+        // Apply pagination
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+        const total = yield toolModel_1.default.countDocuments();
+        query = query.skip(startIndex).limit(limit);
+        const tools = yield query.exec();
+        // Pagination metadata
+        const pagination = {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total
+        };
+        res.status(200).json({ tools, pagination });
     }
     catch (error) {
-        console.error('Error retrieving Saas tools:', error);
+        console.error('Error fetching tools:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -112,11 +179,16 @@ const getCourses = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 exports.getCourses = getCourses;
 //delete a tool
 const deleteTool = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _c;
+    const userId = (_c = req.user) === null || _c === void 0 ? void 0 : _c._id;
+    const toolId = req.params.toolId;
     try {
-        const toolId = req.params.toolId;
         const existingTool = yield toolModel_1.default.findById(toolId);
         if (!existingTool) {
             return res.status(404).json({ message: 'Tool not found' });
+        }
+        if (!existingTool.publisher.equals(userId)) {
+            return res.status(403).json({ message: 'You do not have permission to update this tool' });
         }
         yield toolModel_1.default.findByIdAndDelete(toolId);
         res.status(200).json({ message: 'Tool listing deleted successfully' });

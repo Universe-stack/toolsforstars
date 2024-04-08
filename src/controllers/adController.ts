@@ -1,17 +1,10 @@
+// @ts-nocheck
 import { Request, Response } from 'express';
 import Tool from '../models/toolModel';
 import User from '../models/userModel';
 import {IUser} from '../models/userModel';
 import Ad, { IAd } from '../models/adModel';
 
-
-declare global {
-    namespace Express {
-      interface User {
-        _id: string; // Assuming _id is a string
-      }
-    }
-}
 
 export const createAd = async (req: Request, res: Response) => {
     try {
@@ -44,7 +37,6 @@ export const createAd = async (req: Request, res: Response) => {
         res.status(201).json({ message: 'Ad listing created successfully', ad: newAd });
         console.log('Ad created successfully', newAd);
     } catch (error) {
-        // Handle errors
         console.error('Error creating ad listing:', error);
         res.status(500).json({ message: 'Server error' });
     }
@@ -60,6 +52,8 @@ export const getAllAds = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
+
 
 export const getPublisherAds = async(req:Request, res:Response)=> {
     try{
@@ -81,11 +75,16 @@ export const getPublisherAds = async(req:Request, res:Response)=> {
 }
 
 export const getAd = async (req: Request, res: Response) => {
+    const { adId } = req.params
+    const userId = req.user?._id
+
     try {
-        const { adId } = req.params;
         const ad: IAd | null = await Ad.findById(adId);
         if (!ad) {
             return res.status(404).json({ message: 'Ad not found' });
+        }
+        if (!ad.publisher.equals(userId)) {
+            return res.status(403).json({ message: 'You do not have permission to update this tool' });
         }
 
         res.status(200).json(ad);
@@ -95,14 +94,20 @@ export const getAd = async (req: Request, res: Response) => {
     }
 };
 
-export const updateAd =  async (req: Request, res: Response) => {
+export const updateAd = async (req: Request, res: Response) => {
+    const userId = req.user?._id;
+    const { adId } = req.params;
+
     try {
-        const adId = req.params.adId;
-        const { title, description, price, purchaseLink, adSpace,image } = req.body;
+        const { title, description, price, purchaseLink, adSpace, image } = req.body;
 
         const ad = await Ad.findById(adId);
         if (!ad) {
             return res.status(404).json({ message: 'Ad not found' });
+        }
+
+        if (ad.userId !== userId) {
+            return res.status(403).json({ message: 'You are not authorized to update this ad' });
         }
 
         if (title) ad.title = title;
@@ -121,21 +126,19 @@ export const updateAd =  async (req: Request, res: Response) => {
     }
 };
 
-export const deleteAd = async (req: Request, res: Response) => {
-    try {
-        const userId = req.user?._id;
-        
-        const { adId } = req.params;
-        const deletedAd = await Ad.findByIdAndDelete(adId);
 
+export const deleteAd = async (req: Request, res: Response) => {
+    const userId = req.user?._id;  
+    const { adId } = req.params;
+
+    try {
+        const deletedAd = await Ad.findByIdAndDelete(adId);
         if (!deletedAd) {
             return res.status(404).json({ message: 'Ad not found' });
         }
-
         if (deletedAd.publisher.toString() !== userId?.toString()) {
             return res.status(403).json({ message: 'You are not authorized to delete this ad' });
         }
-
         res.status(200).json({ message: 'Ad listing deleted successfully' });
     } catch (error) {
         console.error('Error deleting ad:', error);

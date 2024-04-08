@@ -1,3 +1,4 @@
+// @ts-nocheck
 import express, {Request, Response} from 'express';
 import User, {IUser} from '../models/userModel';
 import Tool, {ITool} from '../models/toolModel';
@@ -5,8 +6,9 @@ import Tool, {ITool} from '../models/toolModel';
 
 export const createNewTool = async (req: Request, res: Response) => {
     try {
-        const { name, description, features, screenshots, pricing, categories, targetAudience } = req.body;
-        const publisher = req.params.userId;
+        const { name, description, features, screenshots, pricing, categories, targetAudience, productType, aiEnabled } = req.body;
+        const publisher = req.user?._id;
+        console.log(publisher, 'publisher')
 
         const newTool = new Tool({
             name,
@@ -15,6 +17,8 @@ export const createNewTool = async (req: Request, res: Response) => {
             screenshots,
             pricing,
             categories,
+            aiEnabled,
+            productType,
             targetAudience,
             publisher:publisher,
             publisherEmail:publisher
@@ -31,12 +35,18 @@ export const createNewTool = async (req: Request, res: Response) => {
 
 //update tool
 export const updateTool = async (req: Request, res: Response) => {
-    try {        
-        const toolId = req.params.toolId;
+    const toolId = req.params.toolId;
+    const userId = req.user?._id;
 
+    try {   
         const existingTool = await Tool.findById(toolId);
+        console.log(existingTool, 'existing Tool')
         if (!existingTool) {
             return res.status(404).json({ message: 'Tool not found' });
+        }
+
+        if (!existingTool.publisher.equals(userId)) {
+            return res.status(403).json({ message: 'You do not have permission to update this tool' });
         }
 
         const { name, description, features, screenshots, pricing, categories, targetAudience } = req.body;
@@ -72,15 +82,92 @@ export const getAllToolListings = async (req: Request, res: Response) => {
     }
 };
 
-export const getSaasTools = async (req: Request, res: Response) => {
+// export const getSaasTools = async (req: Request, res: Response) => {
+//     try {
+//         const saasTools = await Tool.find({ productType: { $in: ['saas', 'Saas'] } });
+//         res.status(200).json(saasTools);
+//     } catch (error) {
+//         console.error('Error retrieving Saas tools:', error);
+//         res.status(500).json({ message: 'Server error' });
+//     }
+// };
+
+
+export const getSaasTools = async (req, res) => {
     try {
-        const saasTools = await Tool.find({ productType: { $in: ['saas', 'Saas'] } });
-        res.status(200).json(saasTools);
+        const { page = req.query.page ? parseInt(req.query.page as string, 20) : 1,
+                limit = 10,
+                sortBy,
+                sortOrder,
+                category 
+            } = req.query;
+
+        let query = await Tool.find({ productType: { $in: ['saas', 'Saas'] } });
+
+        // Apply filtering
+        if (category) {
+            query = query.where('category').equals(category);
+        }
+
+        // Apply sorting
+        // let sortCriteria;
+        
+        // if (sortBy) {
+        //     sortCriteria[sortBy] = sortOrder === 'desc' ? -1 : 1;
+        //     query = query.sort(sortCriteria);
+        // }
+
+        // switch (sortBy) {
+        //     case 'AI':
+        //         sortCriteria = { aiEnabled: sortOrder === 'desc' ? -1 : 1 };
+        //         break;
+        //     case 'pricesHigh':
+        //         sortCriteria = { price: -1 }; 
+        //         break;
+        //     case 'pricesLow':
+        //         sortCriteria = { price: 1 }; 
+        //         break;
+        //     case 'recentlyAdded':
+        //         sortCriteria = { createdAt: -1 };
+        //         break;
+        //     case 'bestReviews':
+        //         sortCriteria = { averageReviewScore: -1 }; 
+        //         break;
+        //     case 'bestUpvotes':
+        //         sortCriteria = { totalUpvotes: -1 };
+        //         break;
+        //     default:
+        //         sortCriteria = { _id: 1 }
+        // }
+        
+        // if (Object.keys(sortCriteria) {
+        //     query = query.sort(sortCriteria);
+        // }
+        
+        // Apply pagination
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+        const total = await Tool.countDocuments();
+
+        query = query.skip(startIndex).limit(limit);
+        const tools = await query.exec();
+
+        // Pagination metadata
+        const pagination = {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total
+        };
+
+        res.status(200).json({ tools, pagination });
     } catch (error) {
-        console.error('Error retrieving Saas tools:', error);
+        console.error('Error fetching tools:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
+
+
+
 
 export const getapps = async (req: Request, res: Response) => {
     try {
@@ -104,12 +191,15 @@ export const getCourses = async (req: Request, res: Response) => {
 
 //delete a tool
 export const deleteTool = async (req: Request, res: Response) => {
-    try {
+        const userId = req.user?._id;
         const toolId = req.params.toolId;
-
+    try {
         const existingTool = await Tool.findById(toolId);
         if (!existingTool) {
             return res.status(404).json({ message: 'Tool not found' });
+        }
+        if (!existingTool.publisher.equals(userId)) {
+            return res.status(403).json({ message: 'You do not have permission to update this tool' });
         }
         await Tool.findByIdAndDelete(toolId);
         res.status(200).json({ message: 'Tool listing deleted successfully' });

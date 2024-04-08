@@ -1,7 +1,5 @@
+// @ts-nocheck
 import express, {Request, Response} from 'express';
-import Upvote from '../models/upvoteModel';
-import IUpvote from '../models/upvoteModel';
-import User, {IUser} from '../models/userModel';
 import Tool, {ITool} from '../models/toolModel';
 
 
@@ -9,7 +7,7 @@ import Tool, {ITool} from '../models/toolModel';
 export const upvoteTool = async (req: Request, res: Response) => {
     try {
         const { toolId } = req.params;
-        const {userId} = req.params;
+        const userId:any = req.user?._id;
 
         const tool = await Tool.findById(toolId);
         if (!tool) {
@@ -39,7 +37,7 @@ export const upvoteTool = async (req: Request, res: Response) => {
 export const removeUpvote = async (req: Request, res: Response) => {
     try {
         const { toolId } = req.params;
-        const {userId} = req.params; // Use user.id after implementing auth
+        const userId:any = req.user?._id; // Use user.id after implementing auth
 
         const tool = await Tool.findById(toolId);
         if (!tool) {
@@ -54,7 +52,7 @@ export const removeUpvote = async (req: Request, res: Response) => {
             tool.upvotes -= 1;
         }
 
-        tool.upvotedBy = tool.upvotedBy.filter((id: String) => id !== userId);
+        tool.upvotedBy = tool.upvotedBy.filter((_id) => _id !== userId);
         await tool.save();            
         res.status(200).json({ message: 'Upvote removed successfully', tool });
         

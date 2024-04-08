@@ -23,7 +23,7 @@ userRouter.put('/updateprofile/:_id', authMiddleware_1.verifyUser, authMiddlewar
 //Get all Users
 userRouter.get('/all', authMiddleware_1.verifyUser, authMiddleware_1.verifySuperAdmin, userController_1.getAllUsers);
 //delete profile
-userRouter.delete('/deleteprofile/:_id', authMiddleware_1.verifyUser, authMiddleware_1.verifyAdmin, userController_1.deleteUser);
+userRouter.delete('/deleteprofile', authMiddleware_1.verifyUser, authMiddleware_1.verifyAdmin, userController_1.deleteUser);
 //update user role
 userRouter.put('/:_id/role', authMiddleware_1.verifyUser, authMiddleware_1.verifySuperAdmin, userController_1.changeUserRole);
 exports.default = userRouter;

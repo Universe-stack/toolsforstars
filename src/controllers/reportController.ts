@@ -39,10 +39,12 @@ const sendMailToPublisher = async (receiver: any, subject: string, text: any) =>
 //https://www.youtube.com/watch?v=L46FwfVTRE0
 
 export const reportTool = async (req: Request, res: Response) => {
-    try {
-        const { toolId, userId} = req.params;
-        const { reportcase} = req.body;
+    
+    const { toolId} = req.params;
+    const userId = req.user?._id;
+    const { reportcase} = req.body;
 
+    try {
         // Check if the tool exists
         const tool = await Tool.findById(toolId);
         const user = await User.findById(userId);

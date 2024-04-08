@@ -63,9 +63,15 @@ const getReviews = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 });
 exports.getReviews = getReviews;
 const updateReview = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const { toolId, reviewId } = req.params;
         const { reviewContent, reviewStars } = req.body;
+        const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
+        const findReview = yield reviewModel_1.default.findById(reviewId);
+        if (!(findReview === null || findReview === void 0 ? void 0 : findReview.userId.equals(userId))) {
+            return res.status(403).json({ message: 'You do not have permission to update this tool' });
+        }
         const updatedReview = yield reviewModel_1.default.findOneAndUpdate({ _id: reviewId, toolId }, { reviewContent, reviewStars }, { new: true });
         if (!updatedReview) {
             return res.status(404).json({ message: 'Review not found for the specified tool' });

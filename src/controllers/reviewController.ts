@@ -1,7 +1,7 @@
+// @ts-nocheck
 import express, { Request, Response } from 'express';
 import Tool, { ITool } from '../models/toolModel';
 import Review from '../models/reviewModel';
-import IReview from '../models/reviewModel'
 
 export const addReview = async (req: Request, res: Response) => {
     try {
@@ -62,6 +62,12 @@ export const updateReview = async (req: Request, res: Response) => {
     try {
         const { toolId, reviewId } = req.params;
         const { reviewContent, reviewStars } = req.body;
+        const userId = req.user?._id
+        const findReview = await Review.findById(reviewId);
+
+        if (!findReview?.userId.equals(userId)) {
+            return res.status(403).json({ message: 'You do not have permission to update this tool' });
+        }
 
         const updatedReview = await Review.findOneAndUpdate(
             { _id: reviewId, toolId },

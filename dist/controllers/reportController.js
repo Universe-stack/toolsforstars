@@ -45,9 +45,11 @@ const sendMailToPublisher = (receiver, subject, text) => __awaiter(void 0, void 
 });
 //https://www.youtube.com/watch?v=L46FwfVTRE0
 const reportTool = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const { toolId } = req.params;
+    const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
+    const { reportcase } = req.body;
     try {
-        const { toolId, userId } = req.params;
-        const { reportcase } = req.body;
         // Check if the tool exists
         const tool = yield toolModel_1.default.findById(toolId);
         const user = yield userModel_1.default.findById(userId);
