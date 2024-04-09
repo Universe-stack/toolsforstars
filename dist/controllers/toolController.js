@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getpublisher = exports.searchTools = exports.getToolDetails = exports.deleteTool = exports.getCourses = exports.getapps = exports.getSaasTools = exports.getAllToolListings = exports.updateTool = exports.createNewTool = void 0;
+exports.getpublisher = exports.searchTools = exports.getToolDetails = exports.deleteTool = exports.filterCourses = exports.getCourses = exports.filterApps = exports.getapps = exports.filterSaasTools = exports.getSaasTools = exports.getAllToolListings = exports.updateTool = exports.createNewTool = void 0;
 const userModel_1 = __importDefault(require("../models/userModel"));
 const toolModel_1 = __importDefault(require("../models/toolModel"));
 const createNewTool = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -87,58 +87,65 @@ const getAllToolListings = (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 exports.getAllToolListings = getAllToolListings;
-// export const getSaasTools = async (req: Request, res: Response) => {
-//     try {
-//         const saasTools = await Tool.find({ productType: { $in: ['saas', 'Saas'] } });
-//         res.status(200).json(saasTools);
-//     } catch (error) {
-//         console.error('Error retrieving Saas tools:', error);
-//         res.status(500).json({ message: 'Server error' });
-//     }
-// };
 const getSaasTools = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const { page = req.query.page ? parseInt(req.query.page, 20) : 1, limit = 10 } = req.query;
+        const startIndex = (page - 1) * limit;
+        let saasToolsQuery = toolModel_1.default.find({ productType: { $in: ['saas', 'Saas'] } });
+        const total = yield toolModel_1.default.countDocuments({ productType: { $in: ['saas', 'Saas'] } });
+        saasToolsQuery = saasToolsQuery.skip(startIndex).limit(limit);
+        const tools = yield saasToolsQuery.exec();
+        // Pagination metadata
+        const pagination = {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total
+        };
+        res.status(200).json({ tools, pagination });
+    }
+    catch (error) {
+        console.error('Error retrieving Saas tools:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+exports.getSaasTools = getSaasTools;
+const filterSaasTools = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
         const { page = req.query.page ? parseInt(req.query.page, 20) : 1, limit = 10, sortBy, sortOrder, category } = req.query;
-        let query = yield toolModel_1.default.find({ productType: { $in: ['saas', 'Saas'] } });
-        // Apply filtering
-        if (category) {
-            query = query.where('category').equals(category);
+        let query = toolModel_1.default.find({
+            productType: { $in: ['saas', 'Saas'] },
+            categories: category ? category : { $exists: true } // Filter by category if provided
+        });
+        if (sortBy) {
+            switch (sortBy) {
+                case 'AI':
+                    query = query.sort({ aiEnabled: sortOrder === 'desc' ? -1 : 1 });
+                    break;
+                case 'pricesHigh':
+                    query = query.sort({ price: -1 });
+                    break;
+                case 'pricesLow':
+                    query = query.sort({ price: 1 });
+                    break;
+                case 'recentlyAdded':
+                    query = query.sort({ createdAt: -1 });
+                    break;
+                case 'bestReviews':
+                    query = query.sort({ averageReviewScore: -1 });
+                    break;
+                case 'bestUpvotes':
+                    query = query.sort({ totalUpvotes: -1 });
+                    break;
+                default:
+                    break;
+            }
         }
-        // Apply sorting
-        // let sortCriteria;
-        // if (sortBy) {
-        //     sortCriteria[sortBy] = sortOrder === 'desc' ? -1 : 1;
-        //     query = query.sort(sortCriteria);
-        // }
-        // switch (sortBy) {
-        //     case 'AI':
-        //         sortCriteria = { aiEnabled: sortOrder === 'desc' ? -1 : 1 };
-        //         break;
-        //     case 'pricesHigh':
-        //         sortCriteria = { price: -1 }; 
-        //         break;
-        //     case 'pricesLow':
-        //         sortCriteria = { price: 1 }; 
-        //         break;
-        //     case 'recentlyAdded':
-        //         sortCriteria = { createdAt: -1 };
-        //         break;
-        //     case 'bestReviews':
-        //         sortCriteria = { averageReviewScore: -1 }; 
-        //         break;
-        //     case 'bestUpvotes':
-        //         sortCriteria = { totalUpvotes: -1 };
-        //         break;
-        //     default:
-        //         sortCriteria = { _id: 1 }
-        // }
-        // if (Object.keys(sortCriteria) {
-        //     query = query.sort(sortCriteria);
-        // }
-        // Apply pagination
         const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
-        const total = yield toolModel_1.default.countDocuments();
+        const total = yield toolModel_1.default.find({
+            productType: { $in: ['saas', 'Saas'] },
+            categories: category ? category : { $exists: true } // Filter by category if provided
+        }).countDocuments();
         query = query.skip(startIndex).limit(limit);
         const tools = yield query.exec();
         // Pagination metadata
@@ -154,29 +161,157 @@ const getSaasTools = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         res.status(500).json({ message: 'Server error' });
     }
 });
-exports.getSaasTools = getSaasTools;
+exports.filterSaasTools = filterSaasTools;
 const getapps = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const appTools = yield toolModel_1.default.find({ productType: { $in: ['apps', 'Apps'] } });
-        res.status(200).json(appTools);
+        const { page = req.query.page ? parseInt(req.query.page, 20) : 1, limit = 10 } = req.query;
+        const startIndex = (page - 1) * limit;
+        let appsToolsQuery = toolModel_1.default.find({ productType: { $in: ['apps', 'apps'] } });
+        const total = yield toolModel_1.default.countDocuments({ productType: { $in: ['apps', 'Apps'] } });
+        appsToolsQuery = appsToolsQuery.skip(startIndex).limit(limit);
+        const tools = yield appsToolsQuery.exec();
+        // Pagination metadata
+        const pagination = {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total
+        };
+        res.status(200).json({ tools, pagination });
     }
     catch (error) {
-        console.error('Error retrieving app tools:', error);
+        console.error('Error retrieving Saas tools:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
 exports.getapps = getapps;
-const getCourses = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const filterApps = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const courses = yield toolModel_1.default.find({ productType: { $in: ['courses', 'Courses'] } });
-        res.status(200).json(courses);
+        const { page = req.query.page ? parseInt(req.query.page, 20) : 1, limit = 10, sortBy, sortOrder, category } = req.query;
+        let query = toolModel_1.default.find({
+            productType: { $in: ['apps', 'Apps'] },
+            categories: category ? category : { $exists: true } // Filter by category if provided
+        });
+        if (sortBy) {
+            switch (sortBy) {
+                case 'AI':
+                    query = query.sort({ aiEnabled: sortOrder === 'desc' ? -1 : 1 });
+                    break;
+                case 'pricesHigh':
+                    query = query.sort({ price: -1 });
+                    break;
+                case 'pricesLow':
+                    query = query.sort({ price: 1 });
+                    break;
+                case 'recentlyAdded':
+                    query = query.sort({ createdAt: -1 });
+                    break;
+                case 'bestReviews':
+                    query = query.sort({ averageReviewScore: -1 });
+                    break;
+                case 'bestUpvotes':
+                    query = query.sort({ totalUpvotes: -1 });
+                    break;
+                default:
+                    break;
+            }
+        }
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+        const total = yield toolModel_1.default.find({
+            productType: { $in: ['apps', 'Apps'] },
+            categories: category ? category : { $exists: true } // Filter by category if provided
+        }).countDocuments();
+        query = query.skip(startIndex).limit(limit);
+        const tools = yield query.exec();
+        // Pagination metadata
+        const pagination = {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total
+        };
+        res.status(200).json({ tools, pagination });
     }
     catch (error) {
-        console.error('Error retrieving Courses:', error);
+        console.error('Error fetching tools:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+exports.filterApps = filterApps;
+const getCourses = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { page = req.query.page ? parseInt(req.query.page, 20) : 1, limit = 10 } = req.query;
+        const startIndex = (page - 1) * limit;
+        let coursesQuery = toolModel_1.default.find({ productType: { $in: ['courses', 'Courses'] } });
+        const total = yield toolModel_1.default.countDocuments({ productType: { $in: ['courses', 'Courses'] } });
+        coursesQuery = coursesQuery.skip(startIndex).limit(limit);
+        const courses = yield coursesQuery.exec();
+        // Pagination metadata
+        const pagination = {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total
+        };
+        res.status(200).json({ courses, pagination });
+    }
+    catch (error) {
+        console.error('Error retrieving Saas tools:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
 exports.getCourses = getCourses;
+const filterCourses = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { page = req.query.page ? parseInt(req.query.page, 20) : 1, limit = 10, sortBy, sortOrder, category } = req.query;
+        let query = toolModel_1.default.find({
+            productType: { $in: ['courses', 'Courses'] },
+            categories: category ? category : { $exists: true } // Filter by category if provided
+        });
+        if (sortBy) {
+            switch (sortBy) {
+                case 'AI':
+                    query = query.sort({ aiEnabled: sortOrder === 'desc' ? -1 : 1 });
+                    break;
+                case 'pricesHigh':
+                    query = query.sort({ price: -1 });
+                    break;
+                case 'pricesLow':
+                    query = query.sort({ price: 1 });
+                    break;
+                case 'recentlyAdded':
+                    query = query.sort({ createdAt: -1 });
+                    break;
+                case 'bestReviews':
+                    query = query.sort({ averageReviewScore: -1 });
+                    break;
+                case 'bestUpvotes':
+                    query = query.sort({ totalUpvotes: -1 });
+                    break;
+                default:
+                    break;
+            }
+        }
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+        const total = yield toolModel_1.default.find({
+            productType: { $in: ['courses', 'Courses'] },
+            categories: category ? category : { $exists: true } // Filter by category if provided
+        }).countDocuments();
+        query = query.skip(startIndex).limit(limit);
+        const tools = yield query.exec();
+        // Pagination metadata
+        const pagination = {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total
+        };
+        res.status(200).json({ tools, pagination });
+    }
+    catch (error) {
+        console.error('Error fetching tools:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+exports.filterCourses = filterCourses;
 //delete a tool
 const deleteTool = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _c;

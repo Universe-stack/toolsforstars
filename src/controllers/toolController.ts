@@ -82,18 +82,37 @@ export const getAllToolListings = async (req: Request, res: Response) => {
     }
 };
 
-// export const getSaasTools = async (req: Request, res: Response) => {
-//     try {
-//         const saasTools = await Tool.find({ productType: { $in: ['saas', 'Saas'] } });
-//         res.status(200).json(saasTools);
-//     } catch (error) {
-//         console.error('Error retrieving Saas tools:', error);
-//         res.status(500).json({ message: 'Server error' });
-//     }
-// };
-
-
 export const getSaasTools = async (req, res) => {
+    try {
+        const { page = req.query.page ? parseInt(req.query.page as string, 20) : 1,
+            limit = 10 } = req.query;
+
+        const startIndex = (page - 1) * limit;
+
+        let saasToolsQuery = Tool.find({ productType: { $in: ['saas', 'Saas'] } });
+
+        const total = await Tool.countDocuments({ productType: { $in: ['saas', 'Saas'] } });
+
+        saasToolsQuery = saasToolsQuery.skip(startIndex).limit(limit);
+        const tools = await saasToolsQuery.exec();
+
+        // Pagination metadata
+        const pagination = {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total
+        };
+
+        res.status(200).json({ tools, pagination });
+    } catch (error) {
+        console.error('Error retrieving Saas tools:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
+
+export const filterSaasTools = async (req, res) => {
     try {
         const { page = req.query.page ? parseInt(req.query.page as string, 20) : 1,
                 limit = 10,
@@ -102,52 +121,43 @@ export const getSaasTools = async (req, res) => {
                 category 
             } = req.query;
 
-        let query = await Tool.find({ productType: { $in: ['saas', 'Saas'] } });
+            let query = Tool.find({ 
+                productType: { $in: ['saas', 'Saas'] }, 
+                categories: category ? category : { $exists: true } // Filter by category if provided
+            });
 
-        // Apply filtering
-        if (category) {
-            query = query.where('category').equals(category);
+        if (sortBy) {
+            switch (sortBy) {
+                case 'AI':
+                    query = query.sort({ aiEnabled: sortOrder === 'desc' ? -1 : 1 });
+                    break;
+                case 'pricesHigh':
+                    query = query.sort({ price: -1 });
+                    break;
+                case 'pricesLow':
+                    query = query.sort({ price: 1 });
+                    break;
+                case 'recentlyAdded':
+                    query = query.sort({ createdAt: -1 });
+                    break;
+                case 'bestReviews':
+                    query = query.sort({ averageReviewScore: -1 });
+                    break;
+                case 'bestUpvotes':
+                    query = query.sort({ totalUpvotes: -1 });
+                    break;
+                default:
+                    break;
+            }
         }
 
-        // Apply sorting
-        // let sortCriteria;
         
-        // if (sortBy) {
-        //     sortCriteria[sortBy] = sortOrder === 'desc' ? -1 : 1;
-        //     query = query.sort(sortCriteria);
-        // }
-
-        // switch (sortBy) {
-        //     case 'AI':
-        //         sortCriteria = { aiEnabled: sortOrder === 'desc' ? -1 : 1 };
-        //         break;
-        //     case 'pricesHigh':
-        //         sortCriteria = { price: -1 }; 
-        //         break;
-        //     case 'pricesLow':
-        //         sortCriteria = { price: 1 }; 
-        //         break;
-        //     case 'recentlyAdded':
-        //         sortCriteria = { createdAt: -1 };
-        //         break;
-        //     case 'bestReviews':
-        //         sortCriteria = { averageReviewScore: -1 }; 
-        //         break;
-        //     case 'bestUpvotes':
-        //         sortCriteria = { totalUpvotes: -1 };
-        //         break;
-        //     default:
-        //         sortCriteria = { _id: 1 }
-        // }
-        
-        // if (Object.keys(sortCriteria) {
-        //     query = query.sort(sortCriteria);
-        // }
-        
-        // Apply pagination
         const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
-        const total = await Tool.countDocuments();
+        const total = await Tool.find({ 
+            productType: { $in: ['saas', 'Saas'] }, 
+            categories: category ? category : { $exists: true } // Filter by category if provided
+        }).countDocuments();
 
         query = query.skip(startIndex).limit(limit);
         const tools = await query.exec();
@@ -171,20 +181,187 @@ export const getSaasTools = async (req, res) => {
 
 export const getapps = async (req: Request, res: Response) => {
     try {
-        const appTools = await Tool.find({ productType: { $in: ['apps', 'Apps'] } });
-        res.status(200).json(appTools);
+        const { page = req.query.page ? parseInt(req.query.page as string, 20) : 1,
+            limit = 10 } = req.query;
+
+        const startIndex = (page - 1) * limit;
+
+        let appsToolsQuery = Tool.find({ productType: { $in: ['apps', 'apps'] } });
+
+        const total = await Tool.countDocuments({ productType: { $in: ['apps', 'Apps'] } });
+
+        appsToolsQuery = appsToolsQuery.skip(startIndex).limit(limit);
+        const tools = await appsToolsQuery.exec();
+
+        // Pagination metadata
+        const pagination = {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total
+        };
+
+        res.status(200).json({ tools, pagination });
     } catch (error) {
-        console.error('Error retrieving app tools:', error);
+        console.error('Error retrieving Saas tools:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
 
+
+export const filterApps = async (req, res) => {
+    try {
+        const { page = req.query.page ? parseInt(req.query.page as string, 20) : 1,
+                limit = 10,
+                sortBy,
+                sortOrder,
+                category 
+            } = req.query;
+
+            let query = Tool.find({ 
+                productType: { $in: ['apps', 'Apps'] }, 
+                categories: category ? category : { $exists: true } // Filter by category if provided
+            });
+
+        if (sortBy) {
+            switch (sortBy) {
+                case 'AI':
+                    query = query.sort({ aiEnabled: sortOrder === 'desc' ? -1 : 1 });
+                    break;
+                case 'pricesHigh':
+                    query = query.sort({ price: -1 });
+                    break;
+                case 'pricesLow':
+                    query = query.sort({ price: 1 });
+                    break;
+                case 'recentlyAdded':
+                    query = query.sort({ createdAt: -1 });
+                    break;
+                case 'bestReviews':
+                    query = query.sort({ averageReviewScore: -1 });
+                    break;
+                case 'bestUpvotes':
+                    query = query.sort({ totalUpvotes: -1 });
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+        const total = await Tool.find({ 
+            productType: { $in: ['apps', 'Apps'] }, 
+            categories: category ? category : { $exists: true } // Filter by category if provided
+        }).countDocuments();
+
+        query = query.skip(startIndex).limit(limit);
+        const tools = await query.exec();
+
+        // Pagination metadata
+        const pagination = {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total
+        };
+
+        res.status(200).json({ tools, pagination });
+    } catch (error) {
+        console.error('Error fetching tools:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
+
 export const getCourses = async (req: Request, res: Response) => {
     try {
-        const courses = await Tool.find({ productType: { $in: ['courses', 'Courses'] } });
-        res.status(200).json(courses);
+        const { page = req.query.page ? parseInt(req.query.page as string, 20) : 1,
+            limit = 10 } = req.query;
+
+        const startIndex = (page - 1) * limit;
+
+        let coursesQuery = Tool.find({ productType: { $in: ['courses', 'Courses'] } });
+
+        const total = await Tool.countDocuments({ productType: { $in: ['courses', 'Courses'] } });
+
+        coursesQuery = coursesQuery.skip(startIndex).limit(limit);
+        const courses = await coursesQuery.exec();
+
+        // Pagination metadata
+        const pagination = {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total
+        };
+
+        res.status(200).json({ courses, pagination });
     } catch (error) {
-        console.error('Error retrieving Courses:', error);
+        console.error('Error retrieving Saas tools:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+export const filterCourses = async (req, res) => {
+    try {
+        const { page = req.query.page ? parseInt(req.query.page as string, 20) : 1,
+                limit = 10,
+                sortBy,
+                sortOrder,
+                category 
+            } = req.query;
+
+            let query = Tool.find({ 
+                productType: { $in: ['courses', 'Courses'] }, 
+                categories: category ? category : { $exists: true } // Filter by category if provided
+            });
+
+        if (sortBy) {
+            switch (sortBy) {
+                case 'AI':
+                    query = query.sort({ aiEnabled: sortOrder === 'desc' ? -1 : 1 });
+                    break;
+                case 'pricesHigh':
+                    query = query.sort({ price: -1 });
+                    break;
+                case 'pricesLow':
+                    query = query.sort({ price: 1 });
+                    break;
+                case 'recentlyAdded':
+                    query = query.sort({ createdAt: -1 });
+                    break;
+                case 'bestReviews':
+                    query = query.sort({ averageReviewScore: -1 });
+                    break;
+                case 'bestUpvotes':
+                    query = query.sort({ totalUpvotes: -1 });
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+        const total = await Tool.find({ 
+            productType: { $in: ['courses', 'Courses'] }, 
+            categories: category ? category : { $exists: true } // Filter by category if provided
+        }).countDocuments();
+
+        query = query.skip(startIndex).limit(limit);
+        const tools = await query.exec();
+
+        // Pagination metadata
+        const pagination = {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total
+        };
+
+        res.status(200).json({ tools, pagination });
+    } catch (error) {
+        console.error('Error fetching tools:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };

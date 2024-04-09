@@ -18,6 +18,9 @@ toolRouter.put('/updatetool/:toolId', authMiddleware_1.verifyUser, authMiddlewar
 toolRouter.get('/search', toolController_1.searchTools);
 toolRouter.get('/saas', toolController_1.getSaasTools);
 toolRouter.get('/courses', toolController_1.getCourses);
+toolRouter.get('/saas/filterResults', toolController_1.filterSaasTools);
+toolRouter.get('/apps/filterResults', toolController_1.filterApps);
+toolRouter.get('/courses/filterResults', toolController_1.filterCourses);
 toolRouter.get('/apps', toolController_1.getapps);
 toolRouter.get('/all', toolController_1.getAllToolListings);
 toolRouter.get('/:toolId', toolController_1.getToolDetails);
