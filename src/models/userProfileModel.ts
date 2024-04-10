@@ -7,6 +7,7 @@ export interface IUserProfile extends Document {
     name: string;
     role: string;
     picture: string;
+    age: Date
 }
 
 
@@ -14,9 +15,9 @@ const userProfileSchema: Schema = new Schema({
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     name: { type: String, required: true },
-    role: { type: String, enum: ['super user', 'publisher', 'visitor'], default: 'visitor' },
+    role: { type: String, enum: ['superuser', 'publisher', 'visitor'], default: 'visitor' },
     picture: { type: String }, // URL or binary data for the user's picture
-    // Add more fields as needed
+    age: {type: Date, required:false},
 }, { timestamps: true });
 
 

@@ -28,8 +28,8 @@ const userProfileSchema = new mongoose_1.Schema({
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     name: { type: String, required: true },
-    role: { type: String, enum: ['super user', 'publisher', 'visitor'], default: 'visitor' },
+    role: { type: String, enum: ['superuser', 'publisher', 'visitor'], default: 'visitor' },
     picture: { type: String }, // URL or binary data for the user's picture
-    // Add more fields as needed
+    age: { type: Date, required: false },
 }, { timestamps: true });
 exports.default = mongoose_1.default.model('UserProfile', userProfileSchema);

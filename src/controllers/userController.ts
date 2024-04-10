@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs';
 import Tool, {ITool} from '../models/toolModel';
 import passport from 'passport';
 import { generateAuthToken } from '../middlewares/authMiddleware';
-
+import { validationResult } from 'express-validator';
 
 
 declare global {
@@ -21,6 +21,11 @@ declare global {
 // Register User
 export const registerUser = async (req:Request,res:Response )=> {
     try{
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
         const {username, password, name, role, email} = req.body;
         
         if (!username || !email || !password) {
@@ -61,6 +66,11 @@ export const registerUser = async (req:Request,res:Response )=> {
 
 export const loginUser = async (req: Request, res: Response,next:NextFunction) => {
     try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
       const { username, password } = req.body;
   
       // Check if the user exists
@@ -101,6 +111,11 @@ export const logout = function(req:Request, res:Response, next:NextFunction){
 //Create user profile
 export const createUserProfile = async (req: Request, res: Response) => {
     try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+        
         const { username, email, name, role, picture } = req.body;
 
         // Check if the username and email are unique
@@ -147,7 +162,12 @@ export const getUserProfile = async (req: Request, res: Response) => {
 };
 
 export const updateUserProfile = async(req:Request, res:Response)=> {
+
     try{
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
        
         const existingUser = await UserProfile.findById(req.params._id);
 

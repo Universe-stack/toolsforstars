@@ -13,12 +13,10 @@ import toolRouter from './routes/toolRoute';
 //import upvoteRouter from './routes/upvoteRoute';
 import reportRouter from './routes/reportRoute';
 import adRouter from './routes/adRoute';
+import cors from 'cors';
+import helmet from 'helmet';
 import session from 'express-session';
 import "./auth/passportJwtConfig"
-
-
-
-
 
 dotenv.config()
 
@@ -26,8 +24,35 @@ dotenv.config()
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(cors());
+app.use(helmet());
+
+app.use(
+  helmet.contentSecurityPolicy({
+    useDefaults: true,
+    directives: {
+      "font-src": ["'self'", "external-website.com"],
+      // allowing styles from any website
+      "style-src": null,
+    },
+  })
+)
+
+app.use(
+  helmet.referrerPolicy({
+    policy: "no-referrer",
+  })
+)
+
+app.use(
+  helmet({
+    noSniff: false,
+  })
+)
+
 // Connect to MongoDB
 //https://medium.com/@chiragmehta900/how-to-connect-mongodb-atlas-with-node-js-typescript-123eeadd3d5c
+
 mongoose
   .connect(config.mongo.url, { retryWrites: true, w: 'majority' })
     .then(() => {

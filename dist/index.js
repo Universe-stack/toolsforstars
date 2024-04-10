@@ -14,10 +14,28 @@ const toolRoute_1 = __importDefault(require("./routes/toolRoute"));
 //import upvoteRouter from './routes/upvoteRoute';
 const reportRoute_1 = __importDefault(require("./routes/reportRoute"));
 const adRoute_1 = __importDefault(require("./routes/adRoute"));
+const cors_1 = __importDefault(require("cors"));
+const helmet_1 = __importDefault(require("helmet"));
 require("./auth/passportJwtConfig");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3000;
+app.use((0, cors_1.default)());
+app.use((0, helmet_1.default)());
+app.use(helmet_1.default.contentSecurityPolicy({
+    useDefaults: true,
+    directives: {
+        "font-src": ["'self'", "external-website.com"],
+        // allowing styles from any website
+        "style-src": null,
+    },
+}));
+app.use(helmet_1.default.referrerPolicy({
+    policy: "no-referrer",
+}));
+app.use((0, helmet_1.default)({
+    noSniff: false,
+}));
 // Connect to MongoDB
 //https://medium.com/@chiragmehta900/how-to-connect-mongodb-atlas-with-node-js-typescript-123eeadd3d5c
 mongoose_1.default

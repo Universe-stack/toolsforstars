@@ -19,9 +19,14 @@ const userProfileModel_1 = __importDefault(require("../models/userProfileModel")
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const toolModel_1 = __importDefault(require("../models/toolModel"));
 const authMiddleware_1 = require("../middlewares/authMiddleware");
+const express_validator_1 = require("express-validator");
 // Register User
 const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const errors = (0, express_validator_1.validationResult)(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
         const { username, password, name, role, email } = req.body;
         if (!username || !email || !password) {
             return res.status(400).json({ message: 'Username, email, and password are required' });
@@ -54,6 +59,10 @@ const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 exports.registerUser = registerUser;
 const loginUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const errors = (0, express_validator_1.validationResult)(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
         const { username, password } = req.body;
         // Check if the user exists
         const user = yield userModel_1.default.findOne({ username });
@@ -90,6 +99,10 @@ exports.logout = logout;
 //Create user profile
 const createUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const errors = (0, express_validator_1.validationResult)(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
         const { username, email, name, role, picture } = req.body;
         // Check if the username and email are unique
         const existingUser = yield userProfileModel_1.default.findOne({ $or: [{ username }, { email }] });
@@ -131,6 +144,10 @@ const getUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function*
 exports.getUserProfile = getUserProfile;
 const updateUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const errors = (0, express_validator_1.validationResult)(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
         const existingUser = yield userProfileModel_1.default.findById(req.params._id);
         if (!existingUser) {
             return res.status(404).json({ message: "user not found" });
