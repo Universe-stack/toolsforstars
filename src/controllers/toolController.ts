@@ -1,7 +1,7 @@
 // @ts-nocheck
-import express, {Request, Response} from 'express';
-import User, {IUser} from '../models/userModel';
-import Tool, {ITool} from '../models/toolModel';
+import {Request, Response} from 'express';
+import User  from '../models/userModel';
+import Tool from '../models/toolModel';
 
 
 export const createNewTool = async (req: Request, res: Response) => {

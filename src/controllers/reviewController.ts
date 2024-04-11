@@ -1,6 +1,6 @@
 // @ts-nocheck
-import express, { Request, Response } from 'express';
-import Tool, { ITool } from '../models/toolModel';
+import { Request, Response } from 'express';
+import Tool from '../models/toolModel';
 import Review from '../models/reviewModel';
 
 export const addReview = async (req: Request, res: Response) => {

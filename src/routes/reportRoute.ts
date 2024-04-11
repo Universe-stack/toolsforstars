@@ -1,5 +1,5 @@
 import express from 'express';
-import { reportTool, viewReports, handleReport } from '../controllers/reportController';
+import { viewReports, handleReport } from '../controllers/reportController';
 import { verifySuperAdmin, verifyUser } from '../middlewares/authMiddleware';
 
 const reportRouter = express.Router();

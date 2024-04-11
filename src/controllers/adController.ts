@@ -1,8 +1,6 @@
 // @ts-nocheck
 import { Request, Response } from 'express';
-import Tool from '../models/toolModel';
 import User from '../models/userModel';
-import {IUser} from '../models/userModel';
 import Ad, { IAd } from '../models/adModel';
 
 

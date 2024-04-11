@@ -1,21 +1,15 @@
-import express, {Express , Request, Response } from 'express';
+import express from 'express';
 import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import config from './utils/config'
 import dotenv from 'dotenv';
-import nodemailer from 'nodemailer';
 import cookieParser from 'cookie-parser';
-import passport from 'passport';
 import './auth/passportJwtConfig'
 import userRouter from './routes/userRoute';
 import toolRouter from './routes/toolRoute';
-//import upvoteRouter from './routes/upvoteRoute';
 import reportRouter from './routes/reportRoute';
 import adRouter from './routes/adRoute';
 import cors from 'cors';
 import helmet from 'helmet';
-import session from 'express-session';
 import "./auth/passportJwtConfig"
 
 dotenv.config()

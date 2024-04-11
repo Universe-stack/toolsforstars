@@ -1,9 +1,8 @@
-import express, {Request, Response, NextFunction, response} from 'express';
+import {Request, Response, NextFunction, response} from 'express';
 import User, {IUser} from '../models/userModel';
 import  UserProfile, {IUserProfile} from '../models/userProfileModel';
 import bcrypt from 'bcryptjs';
-import Tool, {ITool} from '../models/toolModel';
-import passport from 'passport';
+import Tool from '../models/toolModel';
 import { generateAuthToken } from '../middlewares/authMiddleware';
 import { validationResult } from 'express-validator';
 

@@ -1,7 +1,5 @@
 import mongoose, {Schema,Document} from 'mongoose';
 
-//Next, Finish implement productType for page routing feature
-
 
 export interface ITool extends Document{
     name: string,

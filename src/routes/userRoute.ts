@@ -1,7 +1,7 @@
 import express from 'express';
 import {registerUser,loginUser,logout,getUserProfile, getAllUsers, updateUserProfile,deleteUser,changeUserRole,createUserProfile } from '../controllers/userController'
 import {verifyAdmin, verifyUser, verifySuperAdmin} from '../middlewares/authMiddleware';
-import { body, param, validationResult } from 'express-validator';
+import { body, param} from 'express-validator';
 import "../auth/passportJwtConfig"
 
 const userRouter = express.Router();

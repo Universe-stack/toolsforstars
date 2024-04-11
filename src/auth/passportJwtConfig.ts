@@ -1,5 +1,4 @@
 //@ts-nocheck
-import express from 'express'
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 import User from '../models/userModel'; // Import your user model
 import { PassportStatic } from 'passport'; // Import PassportStatic type

@@ -1,8 +1,7 @@
 //@ts-nocheck
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response} from 'express';
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
-import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 import jwt from 'jsonwebtoken';
 import User from '../models/userModel'; // Import your user model
 import dotenv from 'dotenv';

@@ -11,7 +11,6 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 require("./auth/passportJwtConfig");
 const userRoute_1 = __importDefault(require("./routes/userRoute"));
 const toolRoute_1 = __importDefault(require("./routes/toolRoute"));
-//import upvoteRouter from './routes/upvoteRoute';
 const reportRoute_1 = __importDefault(require("./routes/reportRoute"));
 const adRoute_1 = __importDefault(require("./routes/adRoute"));
 const cors_1 = __importDefault(require("cors"));

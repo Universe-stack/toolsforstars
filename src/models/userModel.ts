@@ -1,5 +1,4 @@
 import mongoose, {Schema, Document} from "mongoose";
-import bcrypt from 'bcrypt';
 import passportLocalMongoose from 'passport-local-mongoose';
 
 export interface IUser extends Document {
