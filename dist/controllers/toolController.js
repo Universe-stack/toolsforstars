@@ -18,7 +18,7 @@ const toolModel_1 = __importDefault(require("../models/toolModel"));
 const createNewTool = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
-        const { name, description, features, screenshots, pricing, categories, targetAudience, productType, aiEnabled } = req.body;
+        const { name, description, features, screenshots, pricing, categories, targetAudience, productType, aiEnabled, isActive } = req.body;
         const publisher = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
         console.log(publisher, 'publisher');
         const newTool = new toolModel_1.default({
@@ -27,10 +27,11 @@ const createNewTool = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             features,
             screenshots,
             pricing,
-            categories,
-            aiEnabled,
             productType,
+            categories,
             targetAudience,
+            isActive,
+            aiEnabled,
             publisher: publisher,
             publisherEmail: publisher
         });
@@ -122,10 +123,10 @@ const filterSaasTools = (req, res) => __awaiter(void 0, void 0, void 0, function
                     query = query.sort({ aiEnabled: sortOrder === 'desc' ? -1 : 1 });
                     break;
                 case 'pricesHigh':
-                    query = query.sort({ price: -1 });
+                    query = query.sort({ pricing: -1 });
                     break;
                 case 'pricesLow':
-                    query = query.sort({ price: 1 });
+                    query = query.sort({ pricing: 1 });
                     break;
                 case 'recentlyAdded':
                     query = query.sort({ createdAt: -1 });
@@ -197,10 +198,10 @@ const filterApps = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                     query = query.sort({ aiEnabled: sortOrder === 'desc' ? -1 : 1 });
                     break;
                 case 'pricesHigh':
-                    query = query.sort({ price: -1 });
+                    query = query.sort({ pricing: -1 });
                     break;
                 case 'pricesLow':
-                    query = query.sort({ price: 1 });
+                    query = query.sort({ pricing: 1 });
                     break;
                 case 'recentlyAdded':
                     query = query.sort({ createdAt: -1 });
@@ -272,10 +273,10 @@ const filterCourses = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                     query = query.sort({ aiEnabled: sortOrder === 'desc' ? -1 : 1 });
                     break;
                 case 'pricesHigh':
-                    query = query.sort({ price: -1 });
+                    query = query.sort({ pricing: -1 });
                     break;
                 case 'pricesLow':
-                    query = query.sort({ price: 1 });
+                    query = query.sort({ pricing: 1 });
                     break;
                 case 'recentlyAdded':
                     query = query.sort({ createdAt: -1 });

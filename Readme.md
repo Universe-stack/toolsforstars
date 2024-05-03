@@ -63,3 +63,11 @@ Monitoring and Logging:
 
 [x] Set up logging to track application events and errors.
 [x] Implement monitoring solutions (e.g., health checks, performance monitoring).
+
+[x] deploy app: https://www.youtube.com/watch?v=BdT3K-6TOb0
+
+
+[x] Implement Deals feature
+[x] Implement Blog feature
+[x] Implement compare tools (VS) feature
+[x] Implement personalized experience for frontend- onboarding screen

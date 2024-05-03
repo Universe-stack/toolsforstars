@@ -6,7 +6,7 @@ import Tool from '../models/toolModel';
 
 export const createNewTool = async (req: Request, res: Response) => {
     try {
-        const { name, description, features, screenshots, pricing, categories, targetAudience, productType, aiEnabled } = req.body;
+        const { name, description, features, screenshots, pricing, categories, targetAudience, productType, aiEnabled, isActive} = req.body;
         const publisher = req.user?._id;
         console.log(publisher, 'publisher')
 
@@ -16,10 +16,11 @@ export const createNewTool = async (req: Request, res: Response) => {
             features,
             screenshots,
             pricing,
-            categories,
-            aiEnabled,
             productType,
+            categories,
             targetAudience,
+            isActive,
+            aiEnabled,
             publisher:publisher,
             publisherEmail:publisher
         });
@@ -132,10 +133,10 @@ export const filterSaasTools = async (req, res) => {
                     query = query.sort({ aiEnabled: sortOrder === 'desc' ? -1 : 1 });
                     break;
                 case 'pricesHigh':
-                    query = query.sort({ price: -1 });
+                    query = query.sort({ pricing: -1 });
                     break;
                 case 'pricesLow':
-                    query = query.sort({ price: 1 });
+                    query = query.sort({ pricing: 1 });
                     break;
                 case 'recentlyAdded':
                     query = query.sort({ createdAt: -1 });
@@ -228,10 +229,10 @@ export const filterApps = async (req, res) => {
                     query = query.sort({ aiEnabled: sortOrder === 'desc' ? -1 : 1 });
                     break;
                 case 'pricesHigh':
-                    query = query.sort({ price: -1 });
+                    query = query.sort({ pricing: -1 });
                     break;
                 case 'pricesLow':
-                    query = query.sort({ price: 1 });
+                    query = query.sort({ pricing: 1 });
                     break;
                 case 'recentlyAdded':
                     query = query.sort({ createdAt: -1 });
@@ -322,10 +323,10 @@ export const filterCourses = async (req, res) => {
                     query = query.sort({ aiEnabled: sortOrder === 'desc' ? -1 : 1 });
                     break;
                 case 'pricesHigh':
-                    query = query.sort({ price: -1 });
+                    query = query.sort({ pricing: -1 });
                     break;
                 case 'pricesLow':
-                    query = query.sort({ price: 1 });
+                    query = query.sort({ pricing: 1 });
                     break;
                 case 'recentlyAdded':
                     query = query.sort({ createdAt: -1 });
