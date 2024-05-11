@@ -1,17 +1,29 @@
+//@ts-nocheck
 import express from 'express';
 import {createNewTool,updateTool,getAllToolListings, deleteTool, getToolDetails, searchTools, getpublisher ,getSaasTools, getapps, getCourses, filterSaasTools, filterApps, filterCourses} from '../controllers/toolController'
 import { upvoteTool,removeUpvote,getTotalUpvotes} from '../controllers/upvoteController';
 import { reportTool} from '../controllers/reportController';
 import { addReview, getReviews, updateReview, deleteReview} from '../controllers/reviewController';
 import { verifyAdmin, verifySuperAdmin, verifyUser } from '../middlewares/authMiddleware';
+import multer from  'multer';
 
 const toolRouter = express.Router();
 
+const storage= multer.diskStorage({})
+
+const fileFilter= (req,file,cb) => {
+    if(file.mimetype.startsWith('image')) {
+        cb(null,true)
+    }else{
+        cb('invalid image file!', false)
+    }
+}
+const upload = multer({storage,fileFilter});
 //create new tool{Has to use the id now because auth hasn't been implemented to populate the req.user._id}
 // The userId should match the name "userId" being passed from the users route
 
 //move these userIds from the params to the req.body object
-toolRouter.post('/createtool',verifyUser,verifyAdmin,createNewTool);
+toolRouter.post('/createtool',verifyUser,verifyAdmin,upload.array('screenshots', 5),createNewTool);
 toolRouter.put('/updatetool/:toolId', verifyUser,verifyAdmin, updateTool);
 toolRouter.get('/search', searchTools);
 toolRouter.get('/saas', getSaasTools);

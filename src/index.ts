@@ -11,6 +11,9 @@ import adRouter from './routes/adRoute';
 import cors from 'cors';
 import helmet from 'helmet';
 import "./auth/passportJwtConfig"
+import multer from 'multer';
+import path from "path";
+
 
 dotenv.config()
 
@@ -20,6 +23,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(helmet());
+
 
 app.use(
   helmet.contentSecurityPolicy({

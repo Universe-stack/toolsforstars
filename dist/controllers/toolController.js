@@ -15,24 +15,38 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getpublisher = exports.searchTools = exports.getToolDetails = exports.deleteTool = exports.filterCourses = exports.getCourses = exports.filterApps = exports.getapps = exports.filterSaasTools = exports.getSaasTools = exports.getAllToolListings = exports.updateTool = exports.createNewTool = void 0;
 const userModel_1 = __importDefault(require("../models/userModel"));
 const toolModel_1 = __importDefault(require("../models/toolModel"));
+const imageUpload_1 = __importDefault(require("../helper/imageUpload"));
 const createNewTool = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
-        const { name, description, features, screenshots, pricing, categories, targetAudience, productType, aiEnabled, isActive } = req.body;
+        const { name, description, features, pricing, categories, targetAudience, productType, aiEnabled, isActive } = req.body;
         const publisher = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
-        console.log(publisher, 'publisher');
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ message: 'No screenshots uploaded' });
+        }
+        const uploads = req.files.map((file) => __awaiter(void 0, void 0, void 0, function* () {
+            console.log(file, "file");
+            const uploadResult = yield imageUpload_1.default.uploader.upload(file.path, {
+                public_id: `${publisher}_tool_${file.originalname}`,
+                width: 500,
+                height: 500,
+                crop: 'fill'
+            });
+            return uploadResult.secure_url;
+        }));
+        const results = yield Promise.all(uploads);
         const newTool = new toolModel_1.default({
             name,
             description,
             features,
-            screenshots,
+            screenshots: results,
             pricing,
             productType,
             categories,
             targetAudience,
             isActive,
             aiEnabled,
-            publisher: publisher,
+            publisher,
             publisherEmail: publisher
         });
         const savedTool = yield newTool.save();

@@ -2,37 +2,59 @@
 import {Request, Response} from 'express';
 import User  from '../models/userModel';
 import Tool from '../models/toolModel';
+import cloudinary from '../helper/imageUpload'
 
 
-export const createNewTool = async (req: Request, res: Response) => {
+
+export const createNewTool = async (req, res) => {
     try {
-        const { name, description, features, screenshots, pricing, categories, targetAudience, productType, aiEnabled, isActive} = req.body;
-        const publisher = req.user?._id;
-        console.log(publisher, 'publisher')
-
-        const newTool = new Tool({
-            name,
-            description,
-            features,
-            screenshots,
-            pricing,
-            productType,
-            categories,
-            targetAudience,
-            isActive,
-            aiEnabled,
-            publisher:publisher,
-            publisherEmail:publisher
+      const { name, description, features, pricing, categories, targetAudience, productType, aiEnabled, isActive } = req.body;
+      const publisher = req.user?._id;
+  
+      if (!req.files || req.files.length === 0) {
+        return res.status(400).json({ message: 'No screenshots uploaded' });
+      }
+  
+      const uploads = req.files.map(async (file) => {
+        console.log(file, "file")
+        const uploadResult = await cloudinary.uploader.upload(file.path, {
+          public_id: `${publisher}_tool_${file.originalname}`,
+          width: 500,
+          height: 500,
+          crop: 'fill'
         });
-
-        const savedTool = await newTool.save();
-
-        res.status(201).json({ message: 'Tool listing created successfully', tool: savedTool });
+        return uploadResult.secure_url;
+      });
+  
+      
+      const results = await Promise.all(uploads);
+  
+      const newTool = new Tool({
+        name,
+        description,
+        features,
+        screenshots: results,
+        pricing,
+        productType,
+        categories,
+        targetAudience,
+        isActive,
+        aiEnabled,
+        publisher,
+        publisherEmail: publisher
+      });
+  
+      const savedTool = await newTool.save();
+  
+      res.status(201).json({ message: 'Tool listing created successfully', tool: savedTool });
     } catch (error) {
-        console.error('Error creating tool listing:', error);
-        res.status(500).json({ message: 'Server error' });
+      console.error('Error creating tool listing:', error);
+      res.status(500).json({ message: 'Server error' });
     }
-};
+  };
+  
+  
+
 
 //update tool
 export const updateTool = async (req: Request, res: Response) => {
