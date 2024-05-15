@@ -8,6 +8,12 @@ import cloudinary from '../helper/imageUpload'
 
 export const createNewTool = async (req, res) => {
     try {
+
+        const publisher = req.user?._id;
+
+        // if (!req.files || req.files.length === 0) {
+        //   return res.status(400).json({ message: 'No screenshots uploaded' });
+        // }
         const uploadedImages = [];
     
         // Upload each image to Cloudinary
