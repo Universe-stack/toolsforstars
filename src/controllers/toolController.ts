@@ -11,11 +11,11 @@ export const createNewTool = async (req, res) => {
       const { name, description, features, pricing, categories, targetAudience, productType, aiEnabled, isActive } = req.body;
       const publisher = req.user?._id;
   
-      if (!req.files || req.files.length === 0) {
+      if (!req.screenshots || req.screenshots.length === 0) {
         return res.status(400).json({ message: 'No screenshots uploaded' });
       }
   
-      const uploads = req.files.map(async (file) => {
+      const uploads = req.screenshots.map(async (file) => {
         console.log(file, "file")
         const uploadResult = await cloudinary.uploader.upload(file.path, {
           public_id: `${publisher}_tool_${file.originalname}`,
