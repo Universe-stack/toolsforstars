@@ -8,49 +8,41 @@ import cloudinary from '../helper/imageUpload'
 
 export const createNewTool = async (req, res) => {
     try {
-      const { name, description, features, pricing, categories, targetAudience, productType, aiEnabled, isActive } = req.body;
-      const publisher = req.user?._id;
-  
-      if (!req.screenshots || req.screenshots.length === 0) {
-        return res.status(400).json({ message: 'No screenshots uploaded' });
+        const uploadedImages = [];
+    
+        // Upload each image to Cloudinary
+        for (const file of req.files) {
+          const result = await cloudinary.uploader.upload(file.path,{
+            public_id: `${publisher}_tool_${file.originalname}`,
+            width: 500,
+            height: 500,
+            crop: 'fill'
+          });
+          uploadedImages.push(result.secure_url); // Save the URL of the uploaded image
+        }
+    
+        const toolData = {
+          name: req.body.name,
+          description: req.body.description,
+          features: req.body.features ? req.body.features.split(',') : [],
+          pricing: req.body.pricing,
+          productType: req.body.productType,
+          categories: req.body.categories ? req.body.categories.split(',') : [],
+          targetAudience: req.body.targetAudience ? req.body.targetAudience.split(',') : [],
+          aiEnabled: req.body.aiEnabled === 'true',
+          isActive: req.body.isActive === 'true',
+          publisher: req.user._id,
+          screenshots: uploadedImages // Use the URLs of the uploaded images
+        };
+    
+        const newTool = new Tool(toolData);
+        await newTool.save();
+    
+        res.status(201).json(newTool);
+      } catch (error) {
+        console.error('Error creating tool:', error);
+        res.status(500).json({ message: 'Internal server error' });
       }
-  
-      const uploads = req.screenshots.map(async (file) => {
-        console.log(file, "file")
-        const uploadResult = await cloudinary.uploader.upload(file.path, {
-          public_id: `${publisher}_tool_${file.originalname}`,
-          width: 500,
-          height: 500,
-          crop: 'fill'
-        });
-        return uploadResult.secure_url;
-      });
-  
-      
-      const results = await Promise.all(uploads);
-  
-      const newTool = new Tool({
-        name,
-        description,
-        features,
-        screenshots: results,
-        pricing,
-        productType,
-        categories,
-        targetAudience,
-        isActive,
-        aiEnabled,
-        publisher,
-        publisherEmail: publisher
-      });
-  
-      const savedTool = await newTool.save();
-  
-      res.status(201).json({ message: 'Tool listing created successfully', tool: savedTool });
-    } catch (error) {
-      console.error('Error creating tool listing:', error);
-      res.status(500).json({ message: 'Server error' });
-    }
   };
   
   
