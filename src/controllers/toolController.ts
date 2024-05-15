@@ -6,50 +6,53 @@ import cloudinary from '../helper/imageUpload'
 
 
 
-export const createNewTool = async (req, res) => {
+const createNewTool = async (req, res) => {
     try {
-
-        const publisher = req.user?._id;
-
-        // if (!req.files || req.files.length === 0) {
-        //   return res.status(400).json({ message: 'No screenshots uploaded' });
-        // }
-        const uploadedImages = [];
-    
-        // Upload each image to Cloudinary
-        for (const file of req.files) {
-          const result = await cloudinary.uploader.upload(file.path,{
+      const publisher = req.user?._id;
+  
+      if (!req.files || req.files.length === 0) {
+        return res.status(400).json({ message: 'No screenshots uploaded' });
+      }
+  
+      const uploadedImages = [];
+      for (const file of req.files) {
+        try {
+          const result = await cloudinary.uploader.upload(file.path, {
             public_id: `${publisher}_tool_${file.originalname}`,
             width: 500,
             height: 500,
             crop: 'fill'
           });
-          uploadedImages.push(result.secure_url); // Save the URL of the uploaded image
+          uploadedImages.push(result.secure_url);
+        } catch (err) {
+          console.error('Error uploading to Cloudinary:', err);
+          return res.status(500).json({ message: 'Error uploading images' });
         }
-    
-        const toolData = {
-          name: req.body.name,
-          description: req.body.description,
-          features: req.body.features ? req.body.features.split(',') : [],
-          pricing: req.body.pricing,
-          productType: req.body.productType,
-          categories: req.body.categories ? req.body.categories.split(',') : [],
-          targetAudience: req.body.targetAudience ? req.body.targetAudience.split(',') : [],
-          aiEnabled: req.body.aiEnabled === 'true',
-          isActive: req.body.isActive === 'true',
-          publisher: req.user._id,
-          screenshots: uploadedImages // Use the URLs of the uploaded images
-        };
-    
-        const newTool = new Tool(toolData);
-        await newTool.save();
-    
-        res.status(201).json(newTool);
-      } catch (error) {
-        console.error('Error creating tool:', error);
-        res.status(500).json({ message: 'Internal server error' });
       }
+  
+      const toolData = {
+        name: req.body.name,
+        description: req.body.description,
+        features: req.body.features ? req.body.features.split(',') : [],
+        pricing: req.body.pricing,
+        productType: req.body.productType,
+        categories: req.body.categories ? req.body.categories.split(',') : [],
+        targetAudience: req.body.targetAudience ? req.body.targetAudience.split(',') : [],
+        aiEnabled: req.body.aiEnabled === 'true',
+        isActive: req.body.isActive === 'true',
+        publisher: req.user._id,
+        screenshots: uploadedImages
+      };
+  
+      const newTool = new Tool(toolData);
+      await newTool.save();
+      res.status(201).json(newTool);
+    } catch (error) {
+      console.error('Error creating tool:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
   };
+  
   
   
 
