@@ -6,7 +6,7 @@ import cloudinary from '../helper/imageUpload'
 
 
 
-const createNewTool = async (req, res) => {
+export const createNewTool = async (req, res) => {
     try {
       const publisher = req.user?._id;
   
