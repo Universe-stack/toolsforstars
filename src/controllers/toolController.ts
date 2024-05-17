@@ -37,6 +37,7 @@ export const createNewTool = async (req, res) => {
         pricing: req.body.pricing,
         productType: req.body.productType,
         categories: req.body.categories ? req.body.categories.split(',') : [],
+        productLink:req.body.productLink,
         targetAudience: req.body.targetAudience ? req.body.targetAudience.split(',') : [],
         aiEnabled: req.body.aiEnabled === 'true',
         isActive: req.body.isActive === 'true',
@@ -73,7 +74,7 @@ export const updateTool = async (req: Request, res: Response) => {
             return res.status(403).json({ message: 'You do not have permission to update this tool' });
         }
 
-        const { name, description, features, screenshots, pricing, categories, targetAudience } = req.body;
+        const { name, description, features, screenshots, pricing, categories, targetAudience,productLink} = req.body;
 
         existingTool.name = name !== undefined ? name : existingTool.name;
         existingTool.description = description !== undefined ? description : existingTool.description;
@@ -81,6 +82,7 @@ export const updateTool = async (req: Request, res: Response) => {
         existingTool.screenshots = screenshots !== undefined ? screenshots : existingTool.screenshots;
         existingTool.pricing = pricing !== undefined ? pricing : existingTool.pricing;
         existingTool.categories = categories !== undefined ? categories : existingTool.categories;
+        existingTool.productLink = productLink !== undefined ? productLink : existingTool.productLink;
         existingTool.targetAudience = targetAudience !== undefined ? targetAudience : existingTool.targetAudience;
         existingTool.updatedAt = new Date();
       
