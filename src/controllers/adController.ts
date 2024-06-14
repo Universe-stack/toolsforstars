@@ -6,7 +6,7 @@ import Ad, { IAd } from '../models/adModel';
 
 export const createAd = async (req: Request, res: Response) => {
     try {
-        const { title, description, price, purchaseLink, adSpace,image } = req.body;
+        const { adspace, campaignBudget,description,duration,image,link,paid,price,startingDate, title} = req.body;
         const userId:string | undefined = req.user?._id;
 
         const findPublisher = await User.findById(userId)
@@ -21,13 +21,17 @@ export const createAd = async (req: Request, res: Response) => {
         }
 
         const newAd: IAd = new Ad({
-            title,
+            adspace,
+            campaignBudget,
             description,
+            duration,
+            image,
+            link,
+            paid,
             price,
+            startingDate,
+            title,
             publisher:findPublisher?._id,
-            purchaseLink,
-            adSpace,
-            image
         });
 
         await newAd.save();
@@ -92,6 +96,7 @@ export const getAd = async (req: Request, res: Response) => {
     }
 };
 
+//update this add with what's on create
 export const updateAd = async (req: Request, res: Response) => {
     const userId = req.user?._id;
     const { adId } = req.params;

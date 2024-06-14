@@ -8,7 +8,7 @@ export interface IAd extends Document {
     image: string;
     adSpace: 'hero-pro' | 'hero-mid' | 'hero-end' | 'saas-pro' | 'saas-mid' | 'saas-end' | 'none';
     publisher: Schema.Types.ObjectId;
-    paymentStatus: 'pending' | 'paid' | 'rejected';
+    paid: boolean;
     startingDate:string;
     campaignBudget:number;
     duration: number;
@@ -24,7 +24,7 @@ const adSchema = new Schema<IAd>({
     image: {type: String, required: true},
     adSpace: { type: String, enum: ['hero-pro', 'hero-mid', 'hero-end', 'saas-pro', 'saas-mid', 'saas-end', 'none'], default: 'none' },
     publisher: { type: Schema.Types.ObjectId, ref: 'User', required: false },
-    paymentStatus: { type: String, enum: ['pending', 'paid', 'rejected'], default: 'pending' },
+    paid: { type: Boolean},
     startingDate: { type: String},
     campaignBudget: {type: Number},
     duration: { type: Number},
