@@ -32,6 +32,7 @@ const toolSchema = new mongoose_1.Schema({
     pricing: { type: Number, default: 0 },
     productType: { type: String, enum: ['app', 'saas', 'course'], default: 'app', required: true },
     categories: { type: [String] },
+    productLink: { type: String, required: true },
     upvotes: { type: Number, default: 0 },
     upvotedBy: { type: [mongoose_1.Schema.Types.ObjectId] },
     targetAudience: { type: [String] },

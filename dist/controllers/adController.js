@@ -18,7 +18,7 @@ const adModel_1 = __importDefault(require("../models/adModel"));
 const createAd = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
-        const { title, description, price, purchaseLink, adSpace, image } = req.body;
+        const { adSpace, campaignBudget, description, duration, image, link, paid, price, startingDate, title } = req.body;
         const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
         const findPublisher = yield userModel_1.default.findById(userId);
         if (!findPublisher) {
@@ -30,13 +30,17 @@ const createAd = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             return res.status(400).json({ message: `Ad space '${adSpace}' is full. Maximum ${maxAdsAllowed} ads allowed. Try again later` });
         }
         const newAd = new adModel_1.default({
-            title,
-            description,
-            price,
-            publisher: findPublisher === null || findPublisher === void 0 ? void 0 : findPublisher._id,
-            purchaseLink,
             adSpace,
-            image
+            campaignBudget,
+            description,
+            duration,
+            image,
+            link,
+            paid,
+            price,
+            startingDate,
+            title,
+            publisher: findPublisher === null || findPublisher === void 0 ? void 0 : findPublisher._id,
         });
         yield newAd.save();
         res.status(201).json({ message: 'Ad listing created successfully', ad: newAd });
@@ -98,6 +102,7 @@ const getAd = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getAd = getAd;
+//update this add with what's on create
 const updateAd = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _d;
     const userId = (_d = req.user) === null || _d === void 0 ? void 0 : _d._id;

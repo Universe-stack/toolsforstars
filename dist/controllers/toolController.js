@@ -19,42 +19,47 @@ const imageUpload_1 = __importDefault(require("../helper/imageUpload"));
 const createNewTool = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
-        const { name, description, features, pricing, categories, targetAudience, productType, aiEnabled, isActive } = req.body;
         const publisher = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
         if (!req.files || req.files.length === 0) {
             return res.status(400).json({ message: 'No screenshots uploaded' });
         }
-        const uploads = req.files.map((file) => __awaiter(void 0, void 0, void 0, function* () {
-            console.log(file, "file");
-            const uploadResult = yield imageUpload_1.default.uploader.upload(file.path, {
-                public_id: `${publisher}_tool_${file.originalname}`,
-                width: 500,
-                height: 500,
-                crop: 'fill'
-            });
-            return uploadResult.secure_url;
-        }));
-        const results = yield Promise.all(uploads);
-        const newTool = new toolModel_1.default({
-            name,
-            description,
-            features,
-            screenshots: results,
-            pricing,
-            productType,
-            categories,
-            targetAudience,
-            isActive,
-            aiEnabled,
-            publisher,
-            publisherEmail: publisher
-        });
-        const savedTool = yield newTool.save();
-        res.status(201).json({ message: 'Tool listing created successfully', tool: savedTool });
+        const uploadedImages = [];
+        for (const file of req.files) {
+            try {
+                const result = yield imageUpload_1.default.uploader.upload(file.path, {
+                    public_id: `${publisher}_tool_${file.originalname}`,
+                    width: 500,
+                    height: 500,
+                    crop: 'fill'
+                });
+                uploadedImages.push(result.secure_url);
+            }
+            catch (err) {
+                console.error('Error uploading to Cloudinary:', err);
+                return res.status(500).json({ message: 'Error uploading images' });
+            }
+        }
+        const toolData = {
+            name: req.body.name,
+            description: req.body.description,
+            features: req.body.features ? req.body.features.split(',') : [],
+            pricing: req.body.pricing,
+            productType: req.body.productType,
+            categories: req.body.categories ? req.body.categories.split(',') : [],
+            productLink: req.body.productLink,
+            targetAudience: req.body.targetAudience ? req.body.targetAudience.split(',') : [],
+            aiEnabled: req.body.aiEnabled === 'true',
+            isActive: req.body.isActive === 'true',
+            publisher: req.user._id,
+            screenshots: uploadedImages
+        };
+        const newTool = new toolModel_1.default(toolData);
+        yield newTool.save();
+        res.status(201).json(newTool);
     }
     catch (error) {
-        console.error('Error creating tool listing:', error);
-        res.status(500).json({ message: 'Server error' });
+        console.error('Error creating tool:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
 exports.createNewTool = createNewTool;
@@ -72,13 +77,14 @@ const updateTool = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         if (!existingTool.publisher.equals(userId)) {
             return res.status(403).json({ message: 'You do not have permission to update this tool' });
         }
-        const { name, description, features, screenshots, pricing, categories, targetAudience } = req.body;
+        const { name, description, features, screenshots, pricing, categories, targetAudience, productLink } = req.body;
         existingTool.name = name !== undefined ? name : existingTool.name;
         existingTool.description = description !== undefined ? description : existingTool.description;
         existingTool.features = features !== undefined ? features : existingTool.features;
         existingTool.screenshots = screenshots !== undefined ? screenshots : existingTool.screenshots;
         existingTool.pricing = pricing !== undefined ? pricing : existingTool.pricing;
         existingTool.categories = categories !== undefined ? categories : existingTool.categories;
+        existingTool.productLink = productLink !== undefined ? productLink : existingTool.productLink;
         existingTool.targetAudience = targetAudience !== undefined ? targetAudience : existingTool.targetAudience;
         existingTool.updatedAt = new Date();
         const updatedTool = yield existingTool.save();

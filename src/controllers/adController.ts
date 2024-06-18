@@ -6,7 +6,7 @@ import Ad, { IAd } from '../models/adModel';
 
 export const createAd = async (req: Request, res: Response) => {
     try {
-        const { adspace, campaignBudget,description,duration,image,link,paid,price,startingDate, title} = req.body;
+        const { adSpace, campaignBudget,description,duration,image,link,paid,price,startingDate, title} = req.body;
         const userId:string | undefined = req.user?._id;
 
         const findPublisher = await User.findById(userId)
@@ -21,7 +21,7 @@ export const createAd = async (req: Request, res: Response) => {
         }
 
         const newAd: IAd = new Ad({
-            adspace,
+            adSpace,
             campaignBudget,
             description,
             duration,
