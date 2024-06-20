@@ -40,7 +40,7 @@ export const createAd = async (req: Request, res: Response) => {
         console.log('Ad created successfully', newAd);
     } catch (error) {
         console.error('Error creating ad listing:', error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error', error });
     }
 };
 
