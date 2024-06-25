@@ -110,30 +110,30 @@ export const getAllToolListings = async (req: Request, res: Response) => {
 
 export const getSaasTools = async (req, res) => {
     try {
-        const { page = req.query.page ? parseInt(req.query.page as string, 20) : 1,
-            limit = 10 } = req.query;
-
-        const startIndex = (page - 1) * limit;
-
+        const { page = 1, limit = 10 } = req.query;
+        const parsedPage = parseInt(page, 10);
+        const parsedLimit = parseInt(limit, 10);
+    
+        const startIndex = (parsedPage - 1) * parsedLimit;
+    
         let saasToolsQuery = Tool.find({ productType: { $in: ['saas', 'Saas'] } });
-
+    
         const total = await Tool.countDocuments({ productType: { $in: ['saas', 'Saas'] } });
-
-        saasToolsQuery = saasToolsQuery.skip(startIndex).limit(limit);
+    
+        saasToolsQuery = saasToolsQuery.skip(startIndex).limit(parsedLimit);
         const tools = await saasToolsQuery.exec();
-
-        // Pagination metadata
+    
         const pagination = {
-            currentPage: page,
-            totalPages: Math.ceil(total / limit),
-            totalItems: total
+          currentPage: parsedPage,
+          totalPages: Math.ceil(total / parsedLimit),
+          totalItems: total
         };
 
         res.status(200).json({ tools, pagination });
-    } catch (error) {
+      } catch (error) {
         console.error('Error retrieving Saas tools:', error);
         res.status(500).json({ message: 'Server error' });
-    }
+      }
 };
 
 

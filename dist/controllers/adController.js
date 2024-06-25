@@ -48,7 +48,7 @@ const createAd = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
     catch (error) {
         console.error('Error creating ad listing:', error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error', error });
     }
 });
 exports.createAd = createAd;

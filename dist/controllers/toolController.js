@@ -110,16 +110,17 @@ const getAllToolListings = (req, res) => __awaiter(void 0, void 0, void 0, funct
 exports.getAllToolListings = getAllToolListings;
 const getSaasTools = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { page = req.query.page ? parseInt(req.query.page, 20) : 1, limit = 10 } = req.query;
-        const startIndex = (page - 1) * limit;
+        const { page = 1, limit = 10 } = req.query;
+        const parsedPage = parseInt(page, 10);
+        const parsedLimit = parseInt(limit, 10);
+        const startIndex = (parsedPage - 1) * parsedLimit;
         let saasToolsQuery = toolModel_1.default.find({ productType: { $in: ['saas', 'Saas'] } });
         const total = yield toolModel_1.default.countDocuments({ productType: { $in: ['saas', 'Saas'] } });
-        saasToolsQuery = saasToolsQuery.skip(startIndex).limit(limit);
+        saasToolsQuery = saasToolsQuery.skip(startIndex).limit(parsedLimit);
         const tools = yield saasToolsQuery.exec();
-        // Pagination metadata
         const pagination = {
-            currentPage: page,
-            totalPages: Math.ceil(total / limit),
+            currentPage: parsedPage,
+            totalPages: Math.ceil(total / parsedLimit),
             totalItems: total
         };
         res.status(200).json({ tools, pagination });
