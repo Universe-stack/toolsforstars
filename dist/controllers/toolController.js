@@ -133,10 +133,10 @@ const getSaasTools = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 exports.getSaasTools = getSaasTools;
 const filterSaasTools = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { page = req.query.page ? parseInt(req.query.page, 20) : 1, limit = 10, sortBy, sortOrder, category } = req.query;
+        const { page = req.query.page ? parseInt(req.query.page, 10) : 1, limit = req.query.limit ? parseInt(req.query.limit, 10) : 10, sortBy, sortOrder = 'asc', category } = req.query;
         let query = toolModel_1.default.find({
             productType: { $in: ['saas', 'Saas'] },
-            categories: category ? category : { $exists: true } // Filter by category if provided
+            categories: category ? category : { $exists: true }
         });
         if (sortBy) {
             switch (sortBy) {
@@ -163,14 +163,12 @@ const filterSaasTools = (req, res) => __awaiter(void 0, void 0, void 0, function
             }
         }
         const startIndex = (page - 1) * limit;
-        const endIndex = page * limit;
-        const total = yield toolModel_1.default.find({
+        const total = yield toolModel_1.default.countDocuments({
             productType: { $in: ['saas', 'Saas'] },
-            categories: category ? category : { $exists: true } // Filter by category if provided
-        }).countDocuments();
+            categories: category ? category : { $exists: true }
+        });
         query = query.skip(startIndex).limit(limit);
         const tools = yield query.exec();
-        // Pagination metadata
         const pagination = {
             currentPage: page,
             totalPages: Math.ceil(total / limit),
