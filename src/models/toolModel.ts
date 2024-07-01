@@ -7,7 +7,7 @@ export interface ITool extends Document{
     features: string,
     screenshots: string,
     pricing: number,
-    productType:'app' | 'SAAS'| 'Course' ,
+    productType:'app' | 'saas'| 'course' ,
     categories: string[],
     productLink:string,
     upvotes: number,

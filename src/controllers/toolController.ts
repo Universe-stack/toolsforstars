@@ -210,9 +210,9 @@ export const getapps = async (req: Request, res: Response) => {
 
         const startIndex = (page - 1) * limit;
 
-        let appsToolsQuery = Tool.find({ productType: { $in: ['apps', 'apps'] } });
+        let appsToolsQuery = Tool.find({ productType: { $in: ['app', 'app'] } });
 
-        const total = await Tool.countDocuments({ productType: { $in: ['apps', 'Apps'] } });
+        const total = await Tool.countDocuments({ productType: { $in: ['app', 'App'] } });
 
         appsToolsQuery = appsToolsQuery.skip(startIndex).limit(limit);
         const tools = await appsToolsQuery.exec();
@@ -234,66 +234,64 @@ export const getapps = async (req: Request, res: Response) => {
 
 export const filterApps = async (req, res) => {
     try {
-        const { page = req.query.page ? parseInt(req.query.page as string, 20) : 1,
-                limit = 10,
-                sortBy,
-                sortOrder,
-                category 
-            } = req.query;
-
-            let query = Tool.find({ 
-                productType: { $in: ['apps', 'Apps'] }, 
-                categories: category ? category : { $exists: true } // Filter by category if provided
-            });
-
+        const {
+          page = req.query.page ? parseInt(req.query.page, 10) : 1,
+          limit = req.query.limit ? parseInt(req.query.limit, 10) : 10,
+          sortBy,
+          sortOrder = 'asc',
+          category
+        } = req.query;
+    
+        let query = Tool.find({
+          productType: { $in: ['app', 'App'] },
+          categories: category ? category : { $exists: true }
+        });
+    
         if (sortBy) {
-            switch (sortBy) {
-                case 'AI':
-                    query = query.sort({ aiEnabled: sortOrder === 'desc' ? -1 : 1 });
-                    break;
-                case 'pricesHigh':
-                    query = query.sort({ pricing: -1 });
-                    break;
-                case 'pricesLow':
-                    query = query.sort({ pricing: 1 });
-                    break;
-                case 'recentlyAdded':
-                    query = query.sort({ createdAt: -1 });
-                    break;
-                case 'bestReviews':
-                    query = query.sort({ averageReviewScore: -1 });
-                    break;
-                case 'bestUpvotes':
-                    query = query.sort({ totalUpvotes: -1 });
-                    break;
-                default:
-                    break;
-            }
+          switch (sortBy) {
+            case 'AI':
+              query = query.sort({ aiEnabled: sortOrder === 'desc' ? -1 : 1 });
+              break;
+            case 'pricesHigh':
+              query = query.sort({ pricing: -1 });
+              break;
+            case 'pricesLow':
+              query = query.sort({ pricing: 1 });
+              break;
+            case 'recentlyAdded':
+              query = query.sort({ createdAt: -1 });
+              break;
+            case 'bestReviews':
+              query = query.sort({ averageReviewScore: -1 });
+              break;
+            case 'bestUpvotes':
+              query = query.sort({ totalUpvotes: -1 });
+              break;
+            default:
+              break;
+          }
         }
-
-        
+    
         const startIndex = (page - 1) * limit;
-        const endIndex = page * limit;
-        const total = await Tool.find({ 
-            productType: { $in: ['apps', 'Apps'] }, 
-            categories: category ? category : { $exists: true } // Filter by category if provided
-        }).countDocuments();
-
+        const total = await Tool.countDocuments({
+          productType: { $in: ['app', 'App'] },
+          categories: category ? category : { $exists: true }
+        });
+    
         query = query.skip(startIndex).limit(limit);
         const tools = await query.exec();
-
-        // Pagination metadata
+    
         const pagination = {
-            currentPage: page,
-            totalPages: Math.ceil(total / limit),
-            totalItems: total
+          currentPage: page,
+          totalPages: Math.ceil(total / limit),
+          totalItems: total
         };
-
+    
         res.status(200).json({ tools, pagination });
-    } catch (error) {
+      } catch (error) {
         console.error('Error fetching tools:', error);
         res.status(500).json({ message: 'Server error' });
-    }
+      }
 };
 
 

@@ -186,8 +186,8 @@ const getapps = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { page = req.query.page ? parseInt(req.query.page, 20) : 1, limit = 10 } = req.query;
         const startIndex = (page - 1) * limit;
-        let appsToolsQuery = toolModel_1.default.find({ productType: { $in: ['apps', 'apps'] } });
-        const total = yield toolModel_1.default.countDocuments({ productType: { $in: ['apps', 'Apps'] } });
+        let appsToolsQuery = toolModel_1.default.find({ productType: { $in: ['app', 'app'] } });
+        const total = yield toolModel_1.default.countDocuments({ productType: { $in: ['app', 'App'] } });
         appsToolsQuery = appsToolsQuery.skip(startIndex).limit(limit);
         const tools = yield appsToolsQuery.exec();
         // Pagination metadata
@@ -206,10 +206,10 @@ const getapps = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.getapps = getapps;
 const filterApps = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { page = req.query.page ? parseInt(req.query.page, 20) : 1, limit = 10, sortBy, sortOrder, category } = req.query;
+        const { page = req.query.page ? parseInt(req.query.page, 10) : 1, limit = req.query.limit ? parseInt(req.query.limit, 10) : 10, sortBy, sortOrder = 'asc', category } = req.query;
         let query = toolModel_1.default.find({
-            productType: { $in: ['apps', 'Apps'] },
-            categories: category ? category : { $exists: true } // Filter by category if provided
+            productType: { $in: ['app', 'App'] },
+            categories: category ? category : { $exists: true }
         });
         if (sortBy) {
             switch (sortBy) {
@@ -236,14 +236,12 @@ const filterApps = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             }
         }
         const startIndex = (page - 1) * limit;
-        const endIndex = page * limit;
-        const total = yield toolModel_1.default.find({
-            productType: { $in: ['apps', 'Apps'] },
-            categories: category ? category : { $exists: true } // Filter by category if provided
-        }).countDocuments();
+        const total = yield toolModel_1.default.countDocuments({
+            productType: { $in: ['app', 'App'] },
+            categories: category ? category : { $exists: true }
+        });
         query = query.skip(startIndex).limit(limit);
         const tools = yield query.exec();
-        // Pagination metadata
         const pagination = {
             currentPage: page,
             totalPages: Math.ceil(total / limit),
