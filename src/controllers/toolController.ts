@@ -334,7 +334,7 @@ export const filterCourses = async (req, res) => {
             } = req.query;
 
             let query = Tool.find({ 
-                productType: { $in: ['courses', 'Courses'] }, 
+                productType: { $in: ['course', 'Course'] }, 
                 categories: category ? category : { $exists: true } // Filter by category if provided
             });
 
@@ -367,7 +367,7 @@ export const filterCourses = async (req, res) => {
         const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
         const total = await Tool.find({ 
-            productType: { $in: ['courses', 'Courses'] }, 
+            productType: { $in: ['course', 'Course'] }, 
             categories: category ? category : { $exists: true } // Filter by category if provided
         }).countDocuments();
 
@@ -383,7 +383,7 @@ export const filterCourses = async (req, res) => {
 
         res.status(200).json({ tools, pagination });
     } catch (error) {
-        console.error('Error fetching tools:', error);
+        console.error('Error fetching course:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };

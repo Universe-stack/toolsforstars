@@ -281,7 +281,7 @@ const filterCourses = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     try {
         const { page = req.query.page ? parseInt(req.query.page, 20) : 1, limit = 10, sortBy, sortOrder, category } = req.query;
         let query = toolModel_1.default.find({
-            productType: { $in: ['courses', 'Courses'] },
+            productType: { $in: ['course', 'Course'] },
             categories: category ? category : { $exists: true } // Filter by category if provided
         });
         if (sortBy) {
@@ -311,7 +311,7 @@ const filterCourses = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
         const total = yield toolModel_1.default.find({
-            productType: { $in: ['courses', 'Courses'] },
+            productType: { $in: ['course', 'Course'] },
             categories: category ? category : { $exists: true } // Filter by category if provided
         }).countDocuments();
         query = query.skip(startIndex).limit(limit);
@@ -325,7 +325,7 @@ const filterCourses = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         res.status(200).json({ tools, pagination });
     }
     catch (error) {
-        console.error('Error fetching tools:', error);
+        console.error('Error fetching course:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
