@@ -303,9 +303,9 @@ export const getCourses = async (req: Request, res: Response) => {
 
         const startIndex = (page - 1) * limit;
 
-        let coursesQuery = Tool.find({ productType: { $in: ['courses', 'Courses'] } });
+        let coursesQuery = Tool.find({ productType: { $in: ['course', 'Course'] } });
 
-        const total = await Tool.countDocuments({ productType: { $in: ['courses', 'Courses'] } });
+        const total = await Tool.countDocuments({ productType: { $in: ['course', 'Course'] } });
 
         coursesQuery = coursesQuery.skip(startIndex).limit(limit);
         const courses = await coursesQuery.exec();
