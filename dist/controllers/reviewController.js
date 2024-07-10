@@ -16,10 +16,12 @@ exports.deleteReview = exports.updateReview = exports.getReviews = exports.addRe
 const toolModel_1 = __importDefault(require("../models/toolModel"));
 const reviewModel_1 = __importDefault(require("../models/reviewModel"));
 const addReview = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         // Extract parameters from the request
+        const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
         const { toolId } = req.params;
-        const { reviewContent, userId, reviewStars } = req.body;
+        const { reviewContent, reviewStars } = req.body;
         // Validate review stars
         if (!reviewContent || !userId || isNaN(reviewStars) || reviewStars < 1 || reviewStars > 5) {
             return res.status(400).json({ message: 'Invalid review data' });
@@ -63,11 +65,11 @@ const getReviews = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 });
 exports.getReviews = getReviews;
 const updateReview = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _b;
     try {
         const { toolId, reviewId } = req.params;
         const { reviewContent, reviewStars } = req.body;
-        const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
+        const userId = (_b = req.user) === null || _b === void 0 ? void 0 : _b._id;
         const findReview = yield reviewModel_1.default.findById(reviewId);
         if (!(findReview === null || findReview === void 0 ? void 0 : findReview.userId.equals(userId))) {
             return res.status(403).json({ message: 'You do not have permission to update this tool' });

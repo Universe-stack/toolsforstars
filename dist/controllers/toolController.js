@@ -259,8 +259,8 @@ const getCourses = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     try {
         const { page = req.query.page ? parseInt(req.query.page, 20) : 1, limit = 10 } = req.query;
         const startIndex = (page - 1) * limit;
-        let coursesQuery = toolModel_1.default.find({ productType: { $in: ['courses', 'Courses'] } });
-        const total = yield toolModel_1.default.countDocuments({ productType: { $in: ['courses', 'Courses'] } });
+        let coursesQuery = toolModel_1.default.find({ productType: { $in: ['course', 'Course'] } });
+        const total = yield toolModel_1.default.countDocuments({ productType: { $in: ['course', 'Course'] } });
         coursesQuery = coursesQuery.skip(startIndex).limit(limit);
         const courses = yield coursesQuery.exec();
         // Pagination metadata
