@@ -29,7 +29,7 @@ export const upvoteTool = async (req: Request, res: Response) => {
         res.status(200).json({ message: 'Tool upvoted successfully', tool });
     } catch (error) {
         console.error('Error upvoting tool:', error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: error.message });
     }
 };
 
