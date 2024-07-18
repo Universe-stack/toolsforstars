@@ -39,7 +39,7 @@ const upvoteTool = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
     catch (error) {
         console.error('Error upvoting tool:', error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: error.message });
     }
 });
 exports.upvoteTool = upvoteTool;

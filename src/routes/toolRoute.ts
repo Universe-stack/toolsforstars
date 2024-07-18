@@ -23,7 +23,7 @@ const upload = multer({storage,fileFilter});
 // The userId should match the name "userId" being passed from the users route
 
 //move these userIds from the params to the req.body object
-toolRouter.post('/createtool',verifyUser,verifyAdmin,upload.array('screenshots', 5),createNewTool);
+toolRouter.post('/createtool',verifyUser,verifyAdmin,upload.fields([{ name: 'logo', maxCount: 1 },{ name: 'screenshots', maxCount: 5 }]),createNewTool);
 toolRouter.put('/updatetool/:toolId', verifyUser,verifyAdmin, updateTool);
 toolRouter.get('/search', searchTools);
 toolRouter.get('/saas', getSaasTools);

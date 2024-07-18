@@ -25,7 +25,7 @@ const upload = (0, multer_1.default)({ storage, fileFilter });
 //create new tool{Has to use the id now because auth hasn't been implemented to populate the req.user._id}
 // The userId should match the name "userId" being passed from the users route
 //move these userIds from the params to the req.body object
-toolRouter.post('/createtool', authMiddleware_1.verifyUser, authMiddleware_1.verifyAdmin, upload.array('screenshots', 5), toolController_1.createNewTool);
+toolRouter.post('/createtool', authMiddleware_1.verifyUser, authMiddleware_1.verifyAdmin, upload.fields([{ name: 'logo', maxCount: 1 }, { name: 'screenshots', maxCount: 5 }]), toolController_1.createNewTool);
 toolRouter.put('/updatetool/:toolId', authMiddleware_1.verifyUser, authMiddleware_1.verifyAdmin, toolController_1.updateTool);
 toolRouter.get('/search', toolController_1.searchTools);
 toolRouter.get('/saas', toolController_1.getSaasTools);

@@ -10,25 +10,44 @@ export const createNewTool = async (req, res) => {
     try {
       const publisher = req.user?._id;
   
-      if (!req.files || req.files.length === 0) {
-        return res.status(400).json({ message: 'No screenshots uploaded' });
-      }
+      if (!req.files || (!req.files.screenshots && !req.files.logo)) {
+        return res.status(400).json({ message: 'No files uploaded' });
+    }
   
       const uploadedImages = [];
-      for (const file of req.files) {
+      let logoUrl = '';
+
+      if (req.files.logo) {
         try {
-          const result = await cloudinary.uploader.upload(file.path, {
-            public_id: `${publisher}_tool_${file.originalname}`,
-            width: 500,
-            height: 500,
-            crop: 'fill'
-          });
-          uploadedImages.push(result.secure_url);
+            const result = await cloudinary.uploader.upload(req.files.logo[0].path, {
+                public_id: `${publisher}_tool_logo_${req.files.logo[0].originalname}`,
+                width: 500,
+                height: 500,
+                crop: 'fill'
+            });
+            logoUrl = result.secure_url;
         } catch (err) {
-          console.error('Error uploading to Cloudinary:', err);
-          return res.status(500).json({ message: 'Error uploading images' });
+            console.error('Error uploading logo to Cloudinary:', err);
+            return res.status(500).json({ message: err });
         }
+    }
+
+    if (req.files.screenshots) {
+      for (const file of req.files.screenshots) {
+          try {
+              const result = await cloudinary.uploader.upload(file.path, {
+                  public_id: `${publisher}_tool_screenshot_${file.originalname}`,
+                  width: 500,
+                  height: 500,
+                  crop: 'fill'
+              });
+              uploadedImages.push(result.secure_url);
+          } catch (err) {
+              console.error('Error uploading screenshot to Cloudinary:', err);
+              return res.status(500).json({ message: 'Error uploading screenshots' });
+          }
       }
+  }
   
       const toolData = {
         name: req.body.name,
@@ -38,11 +57,13 @@ export const createNewTool = async (req, res) => {
         productType: req.body.productType,
         categories: req.body.categories ? req.body.categories.split(',') : [],
         productLink:req.body.productLink,
+        youtubeLink:req.body.youtubeLink,
         targetAudience: req.body.targetAudience ? req.body.targetAudience.split(',') : [],
         aiEnabled: req.body.aiEnabled === 'true',
         isActive: req.body.isActive === 'true',
         publisher: req.user._id,
-        screenshots: uploadedImages
+        screenshots: uploadedImages,
+        logo: logoUrl
       };
   
       const newTool = new Tool(toolData);
@@ -74,16 +95,18 @@ export const updateTool = async (req: Request, res: Response) => {
             return res.status(403).json({ message: 'You do not have permission to update this tool' });
         }
 
-        const { name, description, features, screenshots, pricing, categories, targetAudience,productLink} = req.body;
+        const { name, description, features, screenshots, pricing, categories, targetAudience,productLink, youtubeLink, logo} = req.body;
 
         existingTool.name = name !== undefined ? name : existingTool.name;
         existingTool.description = description !== undefined ? description : existingTool.description;
         existingTool.features = features !== undefined ? features : existingTool.features;
         existingTool.screenshots = screenshots !== undefined ? screenshots : existingTool.screenshots;
+        existingTool.logo = logo !== undefined ? logo : existingTool.logo;
         existingTool.pricing = pricing !== undefined ? pricing : existingTool.pricing;
         existingTool.categories = categories !== undefined ? categories : existingTool.categories;
         existingTool.productLink = productLink !== undefined ? productLink : existingTool.productLink;
         existingTool.targetAudience = targetAudience !== undefined ? targetAudience : existingTool.targetAudience;
+        existingTool.youtubeLink = youtubeLink !== undefined ? youtubeLink : existingTool.youtubeLink;
         existingTool.updatedAt = new Date();
       
 
