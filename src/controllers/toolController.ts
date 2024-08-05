@@ -52,7 +52,7 @@ export const createNewTool = async (req, res) => {
       const toolData = {
         name: req.body.name,
         description: req.body.description,
-        features: req.body.features ? req.body.features.split(',') : [],
+        features: req.body.features ? JSON.parse(req.body.features) : [],
         pricing: req.body.pricing,
         productType: req.body.productType,
         categories: req.body.categories ? req.body.categories.split(',') : [],
