@@ -97,14 +97,19 @@ export const loginUser = async (req: Request, res: Response,next:NextFunction) =
   };
 
 
-//logout user
 export const logout = function(req:Request, res:Response, next:NextFunction){
- if (!req.user) return res.sendStatus(401);
-
- req.logOut((err) => {
-  if (err) return response.sendStatus(401);
-  res.status(200).json({message: "logged Out"})
- })
+    console.log(req.user, "user")
+    if (!req.user) {
+        return res.sendStatus(401); // Unauthorized if there is no user
+      }
+    
+      // If you are using sessions, destroy the session
+    req.logOut((err) => {
+        if (err) {
+          return res.status(500).json({ message: 'Failed to log out' }); // Correcting the response object
+        }
+    res.status(200).json({message: "logged Out"})
+    })
 }
 
 //Create user profile

@@ -35,18 +35,19 @@ export const verifyUser = passport.authenticate('jwt', { session: false });
 // Middleware function to verify an admin user with a JWT
 export const verifyAdmin = (req:Request, res:Response, next) => {
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
-    console.log(user,"user")
+    console.log(user, "user");
     if (err) {
       return next(err);
     }
-    if (user.role !== "publisher") {
+    if (user.role !== "publisher" && user.role !== "superuser") {
       const error = new Error('You are not authorized to perform this operation!');
       return next(error);
-    }  
+    }
     req.user = user;
     next();
   })(req, res, next);
 };
+
 
 export const verifySuperAdmin = (req:Request, res:Response, next) => {
   passport.authenticate('jwt', { session: false }, (err, user, info) => {

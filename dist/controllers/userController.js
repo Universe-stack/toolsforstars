@@ -13,7 +13,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.changeUserRole = exports.deleteUser = exports.getAllUsers = exports.updateUserProfile = exports.getUserProfile = exports.createUserProfile = exports.logout = exports.loginUser = exports.registerUser = void 0;
-const express_1 = require("express");
 const userModel_1 = __importDefault(require("../models/userModel"));
 const userProfileModel_1 = __importDefault(require("../models/userProfileModel"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
@@ -85,13 +84,16 @@ const loginUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.loginUser = loginUser;
-//logout user
 const logout = function (req, res, next) {
-    if (!req.user)
-        return res.sendStatus(401);
+    console.log(req.user, "user");
+    if (!req.user) {
+        return res.sendStatus(401); // Unauthorized if there is no user
+    }
+    // If you are using sessions, destroy the session
     req.logOut((err) => {
-        if (err)
-            return express_1.response.sendStatus(401);
+        if (err) {
+            return res.status(500).json({ message: 'Failed to log out' }); // Correcting the response object
+        }
         res.status(200).json({ message: "logged Out" });
     });
 };
