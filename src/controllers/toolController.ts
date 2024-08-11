@@ -94,6 +94,7 @@ export const createNewTool = async (req, res) => {
         description: newTool.description,
         categories: newTool.categories,
         pricing: newTool.pricing,
+        productType: newTool.productType
       });
       res.status(201).json(newTool);
     } catch (error) {
