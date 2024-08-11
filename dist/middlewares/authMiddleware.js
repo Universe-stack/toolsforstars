@@ -37,7 +37,7 @@ const verifyAdmin = (req, res, next) => {
         if (err) {
             return next(err);
         }
-        if (user.role !== "publisher") {
+        if (user.role !== "publisher" && user.role !== "superuser") {
             const error = new Error('You are not authorized to perform this operation!');
             return next(error);
         }

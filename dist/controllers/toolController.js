@@ -12,10 +12,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getpublisher = exports.searchTools = exports.getToolDetails = exports.deleteTool = exports.filterCourses = exports.getCourses = exports.filterApps = exports.getapps = exports.filterSaasTools = exports.getSaasTools = exports.getAllToolListings = exports.updateTool = exports.createNewTool = void 0;
+exports.getpublisher = exports.searchTools = exports.getToolDetails = exports.deleteTool = exports.filterCourses = exports.getCourses = exports.filterApps = exports.getapps = exports.filterSaasTools = exports.getSaasTools = exports.getAllToolListings = exports.updateTool = exports.createNewTool = exports.searchToolsWithAlgolia = void 0;
 const userModel_1 = __importDefault(require("../models/userModel"));
 const toolModel_1 = __importDefault(require("../models/toolModel"));
 const imageUpload_1 = __importDefault(require("../helper/imageUpload"));
+const algoliasearch_1 = __importDefault(require("algoliasearch"));
+const client = (0, algoliasearch_1.default)(process.env.ANGOLIA_APPLICATION_ID, process.env.ANGOLIA_ADMIN_APIKEY);
+const index = client.initIndex('Createcamp');
+const searchToolsWithAlgolia = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { query } = req.query;
+        const results = yield index.search(query, {
+            hitsPerPage: 10,
+        });
+        res.status(200).json({ tools: results.hits });
+    }
+    catch (error) {
+        console.error('Error searching tools with Algolia:', error);
+        res.status(500).json({ message: error });
+    }
+});
+exports.searchToolsWithAlgolia = searchToolsWithAlgolia;
 const createNewTool = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
@@ -60,7 +77,7 @@ const createNewTool = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         const toolData = {
             name: req.body.name,
             description: req.body.description,
-            features: req.body.features ? req.body.features.split(',') : [],
+            features: req.body.features ? JSON.parse(req.body.features) : [],
             pricing: req.body.pricing,
             productType: req.body.productType,
             categories: req.body.categories ? req.body.categories.split(',') : [],
@@ -75,11 +92,18 @@ const createNewTool = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         };
         const newTool = new toolModel_1.default(toolData);
         yield newTool.save();
+        yield index.saveObject({
+            objectID: newTool._id,
+            name: newTool.name,
+            description: newTool.description,
+            categories: newTool.categories,
+            pricing: newTool.pricing,
+        });
         res.status(201).json(newTool);
     }
     catch (error) {
         console.error('Error creating tool:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ message: `Internal server error,  ${error}` });
     }
 });
 exports.createNewTool = createNewTool;
@@ -110,6 +134,13 @@ const updateTool = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         existingTool.youtubeLink = youtubeLink !== undefined ? youtubeLink : existingTool.youtubeLink;
         existingTool.updatedAt = new Date();
         const updatedTool = yield existingTool.save();
+        yield index.saveObject({
+            objectID: updatedTool._id,
+            name: updatedTool.name,
+            description: updatedTool.description,
+            categories: updatedTool.categories,
+            pricing: updatedTool.pricing,
+        });
         res.status(200).json({ message: 'Tool updated successfully', tool: updatedTool });
     }
     catch (error) {
@@ -366,6 +397,7 @@ const deleteTool = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             return res.status(403).json({ message: 'You do not have permission to update this tool' });
         }
         yield toolModel_1.default.findByIdAndDelete(toolId);
+        yield index.deleteObject(toolId);
         res.status(200).json({ message: 'Tool listing deleted successfully' });
     }
     catch (error) {

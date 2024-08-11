@@ -21,7 +21,7 @@ export const searchToolsWithAlgolia = async (req: Request, res: Response) => {
       res.status(200).json({ tools: results.hits });
   } catch (error) {
       console.error('Error searching tools with Algolia:', error);
-      res.status(500).json({ message: error +"server error" });
+      res.status(500).json({ message: error });
   }
 }
 
@@ -98,7 +98,7 @@ export const createNewTool = async (req, res) => {
       res.status(201).json(newTool);
     } catch (error) {
       console.error('Error creating tool:', error);
-      res.status(500).json({ message: 'Internal server error' });
+      res.status(500).json({ message: `Internal server error,  ${error}` });
     }
   };
   

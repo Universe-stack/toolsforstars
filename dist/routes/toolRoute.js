@@ -10,6 +10,7 @@ const upvoteController_1 = require("../controllers/upvoteController");
 const reportController_1 = require("../controllers/reportController");
 const reviewController_1 = require("../controllers/reviewController");
 const authMiddleware_1 = require("../middlewares/authMiddleware");
+const toolController_2 = require("../controllers/toolController");
 const multer_1 = __importDefault(require("multer"));
 const toolRouter = express_1.default.Router();
 const storage = multer_1.default.diskStorage({});
@@ -46,4 +47,5 @@ toolRouter.post('/:toolId/addreview', authMiddleware_1.verifyUser, reviewControl
 toolRouter.get('/:toolId/reviews', reviewController_1.getReviews);
 toolRouter.put('/:toolId/reviews/:reviewId', authMiddleware_1.verifyUser, reviewController_1.updateReview);
 toolRouter.delete('/:toolId/deletereviews/:reviewId', authMiddleware_1.verifySuperAdmin, reviewController_1.deleteReview);
+toolRouter.get('/api/search-tools', toolController_2.searchToolsWithAlgolia);
 exports.default = toolRouter;
