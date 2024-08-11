@@ -17,13 +17,14 @@ export const searchToolsWithAlgolia = async (req: Request, res: Response) => {
       const results = await index.search(query as string, {
           hitsPerPage: 10,
       });
-      
+
       res.status(200).json({ tools: results.hits });
   } catch (error) {
       console.error('Error searching tools with Algolia:', error);
-      res.status(500).json({ message: 'Server error' });
+      res.status(500).json({ message: error +"server error" });
   }
 }
+
 export const createNewTool = async (req, res) => {
     try {
       const publisher = req.user?._id;
