@@ -2,10 +2,28 @@
 import {Request, Response} from 'express';
 import User  from '../models/userModel';
 import Tool from '../models/toolModel';
-import cloudinary from '../helper/imageUpload'
+import cloudinary from '../helper/imageUpload';
+import algoliasearch from 'algoliasearch';
 
 
+const client = algoliasearch(process.env.ANGOLIA_APPLICATION_ID, process.env.ANGOLIA_ADMIN_APIKEY);
+const index = client.initIndex('Createcamp');
 
+
+export const searchToolsWithAlgolia = async (req: Request, res: Response) => {
+  try {
+      const { query } = req.query;
+      
+      const results = await index.search(query as string, {
+          hitsPerPage: 10,
+      });
+      
+      res.status(200).json({ tools: results.hits });
+  } catch (error) {
+      console.error('Error searching tools with Algolia:', error);
+      res.status(500).json({ message: 'Server error' });
+  }
+}
 export const createNewTool = async (req, res) => {
     try {
       const publisher = req.user?._id;
@@ -47,7 +65,7 @@ export const createNewTool = async (req, res) => {
               return res.status(500).json({ message: 'Error uploading screenshots' });
           }
       }
-  }
+    }
   
       const toolData = {
         name: req.body.name,
@@ -68,6 +86,14 @@ export const createNewTool = async (req, res) => {
   
       const newTool = new Tool(toolData);
       await newTool.save();
+
+      await index.saveObject({
+        objectID: newTool._id,
+        name: newTool.name,
+        description: newTool.description,
+        categories: newTool.categories,
+        pricing: newTool.pricing,
+      });
       res.status(201).json(newTool);
     } catch (error) {
       console.error('Error creating tool:', error);
@@ -112,6 +138,13 @@ export const updateTool = async (req: Request, res: Response) => {
 
     
         const updatedTool = await existingTool.save();
+        await index.saveObject({
+          objectID: updatedTool._id,
+          name: updatedTool.name,
+          description: updatedTool.description,
+          categories: updatedTool.categories,
+          pricing: updatedTool.pricing,
+        });
 
         res.status(200).json({ message: 'Tool updated successfully', tool: updatedTool });
     } catch (error) {
@@ -424,6 +457,7 @@ export const deleteTool = async (req: Request, res: Response) => {
             return res.status(403).json({ message: 'You do not have permission to update this tool' });
         }
         await Tool.findByIdAndDelete(toolId);
+        await index.deleteObject(toolId);
         res.status(200).json({ message: 'Tool listing deleted successfully' });
     } catch (error) {
         console.error('Error deleting tool listing:', error);

@@ -5,6 +5,7 @@ import { upvoteTool,removeUpvote,getTotalUpvotes} from '../controllers/upvoteCon
 import { reportTool} from '../controllers/reportController';
 import { addReview, getReviews, updateReview, deleteReview} from '../controllers/reviewController';
 import { verifyAdmin, verifySuperAdmin, verifyUser } from '../middlewares/authMiddleware';
+import { searchToolsWithAlgolia } from '../controllers/toolController';
 import multer from  'multer';
 
 const toolRouter = express.Router();
@@ -44,6 +45,7 @@ toolRouter.post('/:toolId/addreview',verifyUser, addReview);
 toolRouter.get('/:toolId/reviews', getReviews);
 toolRouter.put('/:toolId/reviews/:reviewId',verifyUser,updateReview);
 toolRouter.delete('/:toolId/deletereviews/:reviewId',verifySuperAdmin, deleteReview);
+toolRouter.get('/api/search-tools', searchToolsWithAlgolia);
 
 
 export default toolRouter;
