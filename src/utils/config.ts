@@ -7,7 +7,7 @@ const NODE_ENV = process.env.NODE_ENV || '';
 const MONGO_DB_PASSWORD = process.env.MONGO_DB_PASSWORD || '';
 const MONGO_URL = `mongodb+srv://${MONGO_DB_USER}:${MONGO_DB_PASSWORD}@cluster0.wtgzhqv.mongodb.net/toolsforstars?retryWrites=true&w=majority`;
 const SERVER_PORT = process.env.PORT ? Number(process.env.PORT) : 5000;
-const MONGO_URL_LOCAL = `mongodb+srv://${MONGO_DB_USER}:${MONGO_DB_PASSWORD}@cluster0.wtgzhqv.mongodb.net/?retryWrites=true&w=majority`;
+const MONGO_URL_LOCAL = `mongodb+srv://${MONGO_DB_USER}:${MONGO_DB_PASSWORD}@cluster0.wtgzhqv.mongodb.net/toolsforstars?retryWrites=true&w=majority`;
 
 //CREATE CONFIG OBJECT
 const config = {
