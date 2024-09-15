@@ -98,6 +98,7 @@ const createNewTool = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             description: newTool.description,
             categories: newTool.categories,
             pricing: newTool.pricing,
+            productType: newTool.productType
         });
         res.status(201).json(newTool);
     }
@@ -163,9 +164,9 @@ const getAllToolListings = (req, res) => __awaiter(void 0, void 0, void 0, funct
 exports.getAllToolListings = getAllToolListings;
 const getSaasTools = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { page = 1, limit = 10 } = req.query;
-        const parsedPage = parseInt(page, 10);
-        const parsedLimit = parseInt(limit, 10);
+        const { page = 1, limit = 20 } = req.query;
+        const parsedPage = parseInt(page, 20);
+        const parsedLimit = parseInt(limit, 20);
         const startIndex = (parsedPage - 1) * parsedLimit;
         let saasToolsQuery = toolModel_1.default.find({ productType: { $in: ['saas', 'Saas'] } });
         const total = yield toolModel_1.default.countDocuments({ productType: { $in: ['saas', 'Saas'] } });
@@ -186,45 +187,42 @@ const getSaasTools = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 exports.getSaasTools = getSaasTools;
 const filterSaasTools = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { page = req.query.page ? parseInt(req.query.page, 10) : 1, limit = req.query.limit ? parseInt(req.query.limit, 10) : 10, sortBy, sortOrder = 'asc', category } = req.query;
-        let query = toolModel_1.default.find({
+        // Destructure query parameters with default values
+        const { page = 1, limit = 20, sortBy, sortOrder = 'asc', category } = req.query;
+        // Convert page and limit to integers
+        const pageInt = parseInt(page, 10);
+        const limitInt = parseInt(limit, 10);
+        // Build query conditions dynamically
+        const filterConditions = {
             productType: { $in: ['saas', 'Saas'] },
-            categories: category ? category : { $exists: true }
-        });
-        if (sortBy) {
-            switch (sortBy) {
-                case 'AI':
-                    query = query.sort({ aiEnabled: sortOrder === 'desc' ? -1 : 1 });
-                    break;
-                case 'pricesHigh':
-                    query = query.sort({ pricing: -1 });
-                    break;
-                case 'pricesLow':
-                    query = query.sort({ pricing: 1 });
-                    break;
-                case 'recentlyAdded':
-                    query = query.sort({ createdAt: -1 });
-                    break;
-                case 'bestReviews':
-                    query = query.sort({ averageReviewScore: -1 });
-                    break;
-                case 'bestUpvotes':
-                    query = query.sort({ totalUpvotes: -1 });
-                    break;
-                default:
-                    break;
-            }
+        };
+        if (category) {
+            filterConditions.categories = category;
         }
-        const startIndex = (page - 1) * limit;
-        const total = yield toolModel_1.default.countDocuments({
-            productType: { $in: ['saas', 'Saas'] },
-            categories: category ? category : { $exists: true }
-        });
-        query = query.skip(startIndex).limit(limit);
-        const tools = yield query.exec();
+        // Sorting options mapping
+        const sortOptions = {
+            AI: { aiEnabled: sortOrder === 'desc' ? -1 : 1 },
+            pricesHigh: { pricing: -1 },
+            pricesLow: { pricing: 1 },
+            recentlyAdded: { createdAt: -1 },
+            bestReviews: { averageReviewScore: -1 },
+            bestUpvotes: { totalUpvotes: -1 }
+        };
+        // Default to sorting by creation date if `sortBy` is not provided
+        const sort = sortOptions[sortBy] || { createdAt: -1 };
+        // Using aggregation to count and fetch in one query
+        const tools = yield toolModel_1.default.aggregate([
+            { $match: filterConditions },
+            { $sort: sort },
+            { $skip: (pageInt - 1) * limitInt },
+            { $limit: limitInt }
+        ]);
+        // Get the total number of items
+        const total = yield toolModel_1.default.countDocuments(filterConditions);
+        // Calculate pagination
         const pagination = {
-            currentPage: page,
-            totalPages: Math.ceil(total / limit),
+            currentPage: pageInt,
+            totalPages: Math.ceil(total / limitInt),
             totalItems: total
         };
         res.status(200).json({ tools, pagination });

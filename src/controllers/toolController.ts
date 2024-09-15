@@ -168,9 +168,9 @@ export const getAllToolListings = async (req: Request, res: Response) => {
 
 export const getSaasTools = async (req, res) => {
     try {
-        const { page = 1, limit = 10 } = req.query;
-        const parsedPage = parseInt(page, 10);
-        const parsedLimit = parseInt(limit, 10);
+        const { page = 1, limit = 20 } = req.query;
+        const parsedPage = parseInt(page, 20);
+        const parsedLimit = parseInt(limit, 20);
     
         const startIndex = (parsedPage - 1) * parsedLimit;
     
@@ -197,66 +197,67 @@ export const getSaasTools = async (req, res) => {
 
 
 export const filterSaasTools = async (req, res) => {
-    try {
-        const {
-          page = req.query.page ? parseInt(req.query.page, 10) : 1,
-          limit = req.query.limit ? parseInt(req.query.limit, 10) : 10,
-          sortBy,
-          sortOrder = 'asc',
-          category
-        } = req.query;
-    
-        let query = Tool.find({
-          productType: { $in: ['saas', 'Saas'] },
-          categories: category ? category : { $exists: true }
-        });
-    
-        if (sortBy) {
-          switch (sortBy) {
-            case 'AI':
-              query = query.sort({ aiEnabled: sortOrder === 'desc' ? -1 : 1 });
-              break;
-            case 'pricesHigh':
-              query = query.sort({ pricing: -1 });
-              break;
-            case 'pricesLow':
-              query = query.sort({ pricing: 1 });
-              break;
-            case 'recentlyAdded':
-              query = query.sort({ createdAt: -1 });
-              break;
-            case 'bestReviews':
-              query = query.sort({ averageReviewScore: -1 });
-              break;
-            case 'bestUpvotes':
-              query = query.sort({ totalUpvotes: -1 });
-              break;
-            default:
-              break;
-          }
-        }
-    
-        const startIndex = (page - 1) * limit;
-        const total = await Tool.countDocuments({
-          productType: { $in: ['saas', 'Saas'] },
-          categories: category ? category : { $exists: true }
-        });
-    
-        query = query.skip(startIndex).limit(limit);
-        const tools = await query.exec();
-    
-        const pagination = {
-          currentPage: page,
-          totalPages: Math.ceil(total / limit),
-          totalItems: total
-        };
-    
-        res.status(200).json({ tools, pagination });
-      } catch (error) {
-        console.error('Error fetching tools:', error);
-        res.status(500).json({ message: 'Server error' });
-      }
+  try {
+    // Destructure query parameters with default values
+    const {
+      page = 1,
+      limit = 20,
+      sortBy,
+      sortOrder = 'asc',
+      category
+    } = req.query;
+
+    // Convert page and limit to integers
+    const pageInt = parseInt(page, 10);
+    const limitInt = parseInt(limit, 10);
+
+    // Build query conditions dynamically
+    const filterConditions = {
+      productType: { $in: ['saas', 'Saas'] },
+    };
+
+    if (category) {
+      filterConditions.categories = category;
+    }
+
+    // Sorting options mapping
+    const sortOptions = {
+      AI: { aiEnabled: sortOrder === 'desc' ? -1 : 1 },
+      pricesHigh: { pricing: -1 },
+      pricesLow: { pricing: 1 },
+      recentlyAdded: { createdAt: -1 },
+      bestReviews: { averageReviewScore: -1 },
+      bestUpvotes: { totalUpvotes: -1 }
+    };
+
+    // Default to sorting by creation date if `sortBy` is not provided
+    const sort = sortOptions[sortBy] || { createdAt: -1 };
+
+    // Using aggregation to count and fetch in one query
+    const tools = await Tool.aggregate([
+      { $match: filterConditions },
+      { $sort: sort },
+      { $skip: (pageInt - 1) * limitInt },
+      { $limit: limitInt }
+    ]);
+
+    // Get the total number of items
+    const total = await Tool.countDocuments(filterConditions);
+
+    // Calculate pagination
+    const pagination = {
+      currentPage: pageInt,
+      totalPages: Math.ceil(total / limitInt),
+      totalItems: total
+    };
+
+    res.status(200).json({ tools, pagination });
+  } catch (error) {
+    console.error('Error fetching tools:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 };
+
 
 
 
